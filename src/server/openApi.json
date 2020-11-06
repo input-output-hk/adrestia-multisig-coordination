@@ -1,0 +1,88 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "version": "1.4.4",
+    "title": "Sample",
+    "description": "Sample!",
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "paths": {
+    "/sample": {
+      "post": {
+        "summary": "Sample",
+        "description": "Sample description",
+        "operationId": "sampleMethod",
+        "tags": ["sample"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SampleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Expected response to a valid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SampleResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SampleResponseError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SampleRequest": {
+        "description": "Sample request",
+        "type": "object",
+        "required": ["param"],
+        "properties": {
+          "param": {
+            "type": "string"
+          }
+        }
+      },
+      "SampleResponse": {
+        "description": "Sample response object.",
+        "type": "object",
+        "required": ["msg"],
+        "properties": {
+          "msg": {
+            "type": "string"
+          }
+        }
+      },
+      "SampleResponseError": {
+        "description": "Sample response error object.",
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
