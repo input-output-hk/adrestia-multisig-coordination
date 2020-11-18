@@ -1,62 +1,31 @@
-export interface Block {
-  hash: string;
-  number: number;
-  createdAt: number;
-  previousBlockHash: string;
-  previousBlockNumber: number;
-  transactionsCount: number;
-  createdBy: string;
-  size: number;
-  epochNo: number;
-  slotNo: number;
+export type WalletId = Components.Schemas.WalletId;
+export type WalletState = Components.Schemas.WalletState;
+
+export type PubKey = Components.Schemas.PubKey;
+export type CoSignerAlias = Components.Schemas.CoSignerAlias;
+
+export type TransactionId = Components.Schemas.TransactionId;
+export type TransactionState = Components.Schemas.TransactionState;
+export type UnsignedTransaction = string;
+export interface CoSigner {
+  alias: CoSignerAlias;
+  pubKey: PubKey;
 }
 
-export interface GenesisBlock {
-  hash: string;
-  number: number;
-}
-
-export interface BlockIdentifier {
-  index: number;
-  hash: string;
-}
-
-export interface Utxo {
-  value: string;
-  transactionHash: string;
-  index: number;
-}
-
-export interface TransactionInput {
-  address: string;
-  value: string;
-  sourceTransactionHash: string;
-  sourceTransactionIndex: number;
-}
-
-export interface TransactionOutput {
-  address: string;
-  value: string;
-  index: number;
+export interface Wallet {
+  walletId: WalletId;
+  walletState: WalletState;
+  m: number;
+  n: number;
+  createDate: string;
+  pendingTxs: number;
+  cosigners: CoSigner[];
 }
 
 export interface Transaction {
-  hash: string;
-  blockHash: string;
-  fee: string;
-  size: number;
-}
-
-export interface TransactionWithInputsAndOutputs extends Transaction {
-  inputs: TransactionInput[];
-  outputs: TransactionOutput[];
-}
-
-export interface Network {
-  networkName: string;
-}
-
-export interface BlockUtxos {
-  block: Block;
-  utxos: Utxo[];
+  txId: TransactionId;
+  unsignedTransaction: UnsignedTransaction;
+  transactionState: TransactionState;
+  creationDate: string;
+  updateDate: string;
 }
