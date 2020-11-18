@@ -1,49 +1,260 @@
 {
   "openapi": "3.0.2",
   "info": {
-    "version": "1.4.4",
-    "title": "Sample",
-    "description": "Sample!",
+    "title": "Multisig Coordination Server",
+    "description": "Multisig Coordination Server",
+    "version": "1.0",
     "license": {
       "name": "Apache 2.0",
       "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
     }
   },
-  "paths": {
-    "/sample": {
-      "post": {
-        "summary": "Sample",
-        "description": "Sample description",
-        "operationId": "sampleMethod",
-        "tags": ["sample"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SampleRequest"
+  "components": {
+    "schemas": {
+      "PubKey": {
+        "type": "string"
+      },
+      "CoSignerAlias": {
+        "type": "string"
+      },
+      "WalletId": {
+        "type": "string"
+      },
+      "TransactionId": {
+        "type": "string"
+      },
+      "TransactionState": {
+        "type": "string",
+        "enum": ["WaitingForSignatures", "Signed"]
+      },
+      "CoSigner": {
+        "type": "object",
+        "required": ["cosignerAlias", "pubKey"],
+        "properties": {
+          "cosignerAlias": {
+            "$ref": "#/components/schemas/CoSignerAlias"
+          },
+          "pubKey": {
+            "$ref": "#/components/schemas/PubKey"
+          }
+        }
+      },
+      "WalletState": {
+        "type": "string",
+        "enum": ["WaitingForCosigners", "Ready", "Expired"]
+      },
+      "Wallet": {
+        "type": "object",
+        "required": ["walletId", "walletState", "cosigners", "pendingTxs", "creationDate"],
+        "properties": {
+          "walletId": {
+            "$ref": "#/components/schemas/WalletId"
+          },
+          "walletState": {
+            "$ref": "#/components/schemas/WalletState"
+          },
+          "cosigners": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CoSigner"
+            }
+          },
+          "pendingTxs": {
+            "type": "integer"
+          },
+          "creationDate": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "WalletCreation": {
+        "type": "object",
+        "required": ["walletName", "m", "n", "cosigner"],
+        "properties": {
+          "walletName": {
+            "type": "string"
+          },
+          "m": {
+            "type": "integer"
+          },
+          "n": {
+            "type": "integer"
+          },
+          "cosigner": {
+            "$ref": "#/components/schemas/CoSigner"
+          }
+        }
+      },
+      "UnsignedTransaction": {
+        "type": "string"
+      },
+      "Transaction": {
+        "type": "object",
+        "required": ["transactionId", "unsignedTransaction", "transactionState", "creationDate", "updateDate"],
+        "properties": {
+          "transactionId": {
+            "$ref": "#/components/schemas/TransactionId"
+          },
+          "unsignedTransaction": {
+            "$ref": "#/components/schemas/UnsignedTransaction"
+          },
+          "transactionState": {
+            "type": "string",
+            "enum": ["WaitingForSignatures", "Signed"]
+          },
+          "creationDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "updateDate": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "requestBodies": {
+      "createWallet": {
+        "description": "m-of-n wallet to create",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/WalletCreation"
+            }
+          }
+        }
+      },
+      "joinWallet": {
+        "description": "cosigner who wants to join",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CoSigner"
+            }
+          }
+        }
+      },
+      "transactionProposal": {
+        "description": "new transaction proposal",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": ["issuer", "tx"],
+              "properties": {
+                "issuer": {
+                  "$ref": "#/components/schemas/PubKey"
+                },
+                "tx": {
+                  "$ref": "#/components/schemas/UnsignedTransaction"
+                }
               }
             }
           }
-        },
-        "responses": {
-          "200": {
-            "description": "Expected response to a valid request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SampleResponse"
+        }
+      },
+      "signProposal": {
+        "description": "new transaction proposal",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": ["issuer"],
+              "properties": {
+                "issuer": {
+                  "$ref": "#/components/schemas/PubKey"
                 }
               }
             }
-          },
-          "500": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SampleResponseError"
+          }
+        }
+      }
+    },
+    "responses": {
+      "createWallet": {
+        "description": "Create wallet response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": ["walletId"],
+              "properties": {
+                "walletId": {
+                  "$ref": "#/components/schemas/WalletId"
                 }
+              }
+            }
+          }
+        }
+      },
+      "joinWallet": {
+        "description": "Join wallet response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": ["walletState"],
+              "properties": {
+                "walletState": {
+                  "$ref": "#/components/schemas/WalletState"
+                }
+              }
+            }
+          }
+        }
+      },
+      "signTransaction": {
+        "description": "Signing transaction response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Transaction"
+            }
+          }
+        }
+      },
+      "transactionProposal": {
+        "description": "New transaction proposal response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Transaction"
+            }
+          }
+        }
+      },
+      "walletState": {
+        "description": "Wallet state response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Wallet"
+            }
+          }
+        }
+      },
+      "transactionProposals": {
+        "description": "Wallet transaction proposals response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Transaction"
               }
             }
           }
@@ -51,35 +262,300 @@
       }
     }
   },
-  "components": {
-    "schemas": {
-      "SampleRequest": {
-        "description": "Sample request",
-        "type": "object",
-        "required": ["param"],
-        "properties": {
-          "param": {
-            "type": "string"
+  "paths": {
+    "/wallets": {
+      "post": {
+        "summary": "Create Wallet",
+        "description": "Creates a new m-of-n wallet with given name and add co-signer to it.",
+        "operationId": "createWallet",
+        "tags": ["wallet", "creation"],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/createWallet"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/createWallet"
+          },
+          "400": {
+            "description": "Invalid request message parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/wallets/{walletId}": {
+      "get": {
+        "summary": "Get Wallet State",
+        "description": "Retrieves Wallet State according to given Wallet ID",
+        "operationId": "getWalletState",
+        "tags": ["wallet", "state"],
+        "parameters": [
+          {
+            "name": "walletId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/walletState"
+          },
+          "404": {
+            "description": "Wallet not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/wallets/{walletId}/join": {
+      "post": {
+        "summary": "Join to Wallet",
+        "description": "Join to wallet as cosigner",
+        "operationId": "joinWallet",
+        "tags": ["wallet", "join"],
+        "parameters": [
+          {
+            "name": "walletId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/joinWallet"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/joinWallet"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Wallet not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/wallets/{walletId}/proposal": {
+      "post": {
+        "summary": "Creates a Transaction Proposal",
+        "description": "Creates a Transaction Proposal in Wallet and notify cosigners",
+        "operationId": "newTransactionProposal",
+        "tags": ["transaction", "proposal"],
+        "parameters": [
+          {
+            "name": "walletId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/transactionProposal"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transactionProposal"
+          },
+          "400": {
+            "description": "Bad Request. Invalid Cosigner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Wallet not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       },
-      "SampleResponse": {
-        "description": "Sample response object.",
-        "type": "object",
-        "required": ["msg"],
-        "properties": {
-          "msg": {
-            "type": "string"
+      "get": {
+        "summary": "Get Wallet Transaction Proposals",
+        "description": "Retrieves Wallet Transaction Proposals",
+        "operationId": "getTransactionProposals",
+        "tags": ["wallet", "transaction"],
+        "parameters": [
+          {
+            "name": "walletId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transactionProposals"
+          },
+          "404": {
+            "description": "Wallet not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
-      },
-      "SampleResponseError": {
-        "description": "Sample response error object.",
-        "type": "object",
-        "required": ["error"],
-        "properties": {
-          "error": {
-            "type": "string"
+      }
+    },
+    "/transactions/{txId}/sign": {
+      "post": {
+        "summary": "Sign Transaction",
+        "description": "Sign proposed transaction",
+        "operationId": "signTransaction",
+        "tags": ["sign", "transaction"],
+        "parameters": [
+          {
+            "name": "txId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/signProposal"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/signTransaction"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Transaction not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
