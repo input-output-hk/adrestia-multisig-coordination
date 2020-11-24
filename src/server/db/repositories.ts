@@ -1,8 +1,8 @@
 import { Pool } from 'pg';
-import * as SampleRespository from './sample-repository';
+import * as WalletRepository from './wallet-repository';
 
 export interface Repositories {
-  sampleRepository: SampleRespository.SampleRepository;
+  walletRepository: WalletRepository.WalletRepository;
 }
 
 /**
@@ -12,5 +12,5 @@ export interface Repositories {
  * @param database connection to be used to run queries
  */
 export const configure = (database: Pool): Repositories => ({
-  sampleRepository: SampleRespository.configure(database)
+  walletRepository: WalletRepository.configure(database)
 });

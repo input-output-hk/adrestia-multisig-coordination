@@ -1,3 +1,3 @@
-/* eslint-disable camelcase */
-
-export const mapToSampleResponse = (result: string): Components.Schemas.SampleResponse => ({ msg: result });
+export const mapToWalletCreationResponse = (result: string): Components.Responses.CreateWallet => ({
+  walletId: result
+});

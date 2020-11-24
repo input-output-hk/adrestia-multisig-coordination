@@ -29,7 +29,8 @@ declare namespace Components {
     }
     export type CoSignerAlias = string;
     export interface ErrorResponse {
-      error: string;
+      statusCode: number;
+      message: string;
     }
     export type PubKey = string;
     export interface Transaction {
