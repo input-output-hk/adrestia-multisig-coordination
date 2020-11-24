@@ -7,10 +7,7 @@ export type CoSignerAlias = Components.Schemas.CoSignerAlias;
 export type TransactionId = Components.Schemas.TransactionId;
 export type TransactionState = Components.Schemas.TransactionState;
 export type UnsignedTransaction = string;
-export interface CoSigner {
-  alias: CoSignerAlias;
-  pubKey: PubKey;
-}
+export type CoSigner = Components.Schemas.CoSigner;
 
 export interface Wallet {
   walletId: WalletId;

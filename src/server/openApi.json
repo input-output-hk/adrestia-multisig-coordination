@@ -115,9 +115,12 @@
       },
       "ErrorResponse": {
         "type": "object",
-        "required": ["error"],
+        "required": ["statusCode", "message"],
         "properties": {
-          "error": {
+          "statusCode": {
+            "type": "number"
+          },
+          "message": {
             "type": "string"
           }
         }

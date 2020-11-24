@@ -19,13 +19,13 @@ describe('Server test', () => {
   test('should return a generic error if payload is not valid', async () => {
     const response = await server.inject({
       method: 'post',
-      url: '/sample',
+      url: '/wallets',
       payload: { asdasa: 10 }
     });
 
     expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
     // eslint-disable-next-line quotes
-    expect(response.json().message).toEqual("body should have required property 'param'");
+    expect(response.json().message).toEqual("body should have required property 'walletName'");
   });
 
   // Implement when using the db
