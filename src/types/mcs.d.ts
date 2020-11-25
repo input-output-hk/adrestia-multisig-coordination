@@ -48,7 +48,7 @@ declare namespace Components {
       walletState: WalletState;
       cosigners: CoSigner[];
       pendingTxs: number;
-      creationDate: string; // date
+      createDate: string; // date
     }
     export interface WalletCreation {
       walletName: string;

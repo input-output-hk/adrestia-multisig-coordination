@@ -53,13 +53,29 @@ INSERT INTO wallet_cosigners (wallet_id, cosigner)
 VALUES ($1, $2)
 `;
 
+const findWallet = (): string => `
+SELECT * FROM wallets
+WHERE id = $1
+`;
+
+const findCosigners = (): string => `
+SELECT wallet_cosigners.cosigner AS pubKey,
+	cosigners.alias AS cosignerAlias
+FROM wallet_cosigners
+INNER JOIN cosigners
+ON wallet_cosigners.cosigner = cosigners.pubkey
+WHERE wallet_cosigners.wallet_id = $1
+`;
+
 const WalletQueries = {
   createCosignersTable,
   createWalletTable,
   createWalletCosignersTable,
   insertCosigner,
   insertWallet,
-  insertCosignerInWallet
+  insertCosignerInWallet,
+  findWallet,
+  findCosigners
 };
 
 export default WalletQueries;
