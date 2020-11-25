@@ -1,5 +1,4 @@
 import { FastifyInstance } from 'fastify';
-import StatusCodes from 'http-status-codes';
 import * as Repositories from '../../../src/server/db/repositories';
 import * as Services from '../../../src/server/services/services';
 import createPool from '../../../src/server/db/connection';
@@ -16,7 +15,6 @@ export const setupDatabase = (offline: boolean): Pool => {
 };
 
 export const setupServer = (database: Pool): FastifyInstance => {
-  // let repositories;
   const repositories = Repositories.configure(database);
   const services = Services.configure(repositories);
   return buildServer(services, process.env.LOGGER_LEVEL);

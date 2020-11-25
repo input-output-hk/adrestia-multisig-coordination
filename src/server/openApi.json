@@ -45,7 +45,7 @@
       },
       "Wallet": {
         "type": "object",
-        "required": ["walletId", "walletState", "cosigners", "pendingTxs", "creationDate"],
+        "required": ["walletId", "walletState", "cosigners", "pendingTxs", "createDate"],
         "properties": {
           "walletId": {
             "$ref": "#/components/schemas/WalletId"
@@ -62,7 +62,7 @@
           "pendingTxs": {
             "type": "integer"
           },
-          "creationDate": {
+          "createDate": {
             "type": "string",
             "format": "date"
           }

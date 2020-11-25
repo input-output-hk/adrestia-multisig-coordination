@@ -11,12 +11,11 @@ export type CoSigner = Components.Schemas.CoSigner;
 
 export interface Wallet {
   walletId: WalletId;
-  walletState: WalletState;
+  walletName: string;
   m: number;
   n: number;
   createDate: string;
-  pendingTxs: number;
-  cosigners: CoSigner[];
+  initiator: PubKey;
 }
 
 export interface Transaction {
@@ -26,3 +25,8 @@ export interface Transaction {
   creationDate: string;
   updateDate: string;
 }
+
+export type WalletStateResponse = Wallet & {
+  walletState: WalletState;
+  pendingTxs: number;
+};

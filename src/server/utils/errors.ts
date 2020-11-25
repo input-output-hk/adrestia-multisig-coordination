@@ -1,4 +1,3 @@
-import { num } from 'envalid';
 import ApiError from '../api-error';
 
 export interface CustomError {
@@ -22,11 +21,13 @@ const invalidWalletM = buildApiError(Errors.INVALID_WALLET_INPUT_M);
 const invalidWalletN = buildApiError(Errors.INVALID_WALLET_INPUT_N);
 const invalidWalletName = buildApiError(Errors.WALLET_NAME_EMPTY);
 const invalidPubKey = buildApiError(Errors.INVALID_PUBKEY);
+const walletNotFound = buildApiError(Errors.WALLET_NOT_FOUND);
 
 export const ErrorFactory = {
   invalidPubKey,
   invalidWalletName,
   invalidWalletMAndN,
   invalidWalletM,
-  invalidWalletN
+  invalidWalletN,
+  walletNotFound
 };
