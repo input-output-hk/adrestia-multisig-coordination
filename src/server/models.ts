@@ -22,8 +22,9 @@ export interface Transaction {
   txId: TransactionId;
   unsignedTransaction: UnsignedTransaction;
   transactionState: TransactionState;
-  creationDate: string;
-  updateDate: string;
+  createdAt: string;
+  updatedAt: string;
+  issuer: PubKey;
 }
 
 export type WalletStateResponse = Wallet & {

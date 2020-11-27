@@ -31,8 +31,38 @@ public.wallet_cosigners
   	"wallet_id" text,
 	cosigner text,
 	"created_at" date DEFAULT current_date,
-	CONSTRAINT "fk_wallet-cosigners_wallets" FOREIGN KEY ( "wallet_id" ) REFERENCES public.wallets( id )   ,
+	CONSTRAINT "fk_wallet-cosigners_wallets" FOREIGN KEY ( "wallet_id" ) REFERENCES public.wallets( id ),
 	CONSTRAINT "fk_wallet-cosigners_cosigners" FOREIGN KEY ( cosigner ) REFERENCES public.cosigners( pubkey )
+)
+`;
+
+const createTransactionsTable = (): string => `
+CREATE TABLE IF NOT EXISTS
+public.transactions
+(
+	id text,
+	"wallet_id" text,
+	"created_at" date DEFAULT current_date,
+	"updated_at" date DEFAULT current_date,
+	"unsigned_transaction" text,
+	issuer text,
+	CONSTRAINT pk_transactions_id PRIMARY KEY ( id ),
+	CONSTRAINT "fk_transactions_wallets" FOREIGN KEY ( "wallet_id" ) REFERENCES public.wallets( id ),
+	CONSTRAINT fk_transactions_cosigners FOREIGN KEY ( issuer ) REFERENCES public.cosigners( pubkey )
+)
+`;
+
+const createSignaturesTable = (): string => `
+CREATE TABLE IF NOT EXISTS
+public.signatures
+(
+	id text,
+	"transaction_id" text,
+	cosigner text,
+	"created_at" date DEFAULT current_date,
+	CONSTRAINT pk_signatures_id PRIMARY KEY ( id ),
+	CONSTRAINT "fk_signatures_transactions" FOREIGN KEY ( "transaction_id" ) REFERENCES public.transactions( id ),
+	CONSTRAINT fk_signatures_cosigners FOREIGN KEY ( cosigner ) REFERENCES public.cosigners( pubkey )
 )
 `;
 
@@ -67,15 +97,31 @@ ON wallet_cosigners.cosigner = cosigners.pubkey
 WHERE wallet_cosigners.wallet_id = $1
 `;
 
+const insertTransaction = (): string => `
+INSERT INTO transactions (id, wallet_id, created_at, updated_at, unsigned_transaction, issuer)
+VALUES ($1, $2, $3, $4, $5, $6)
+`;
+
+const insertSignature = (): string => `
+INSERT INTO signatures (id, transaction_id, cosigner, created_at)
+VALUES ($1, $2, $3, $4)
+`;
+
 const WalletQueries = {
   createCosignersTable,
   createWalletTable,
   createWalletCosignersTable,
+  createTransactionsTable,
+  createSignaturesTable,
+
   insertCosigner,
   insertWallet,
   insertCosignerInWallet,
   findWallet,
-  findCosigners
+  findCosigners,
+
+  insertTransaction,
+  insertSignature
 };
 
 export default WalletQueries;

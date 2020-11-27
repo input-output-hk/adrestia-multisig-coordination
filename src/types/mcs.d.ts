@@ -37,8 +37,8 @@ declare namespace Components {
       transactionId: TransactionId;
       unsignedTransaction: UnsignedTransaction;
       transactionState: 'WaitingForSignatures' | 'Signed';
-      creationDate: string; // date
-      updateDate: string; // date
+      createdAt: string; // date
+      updatedAt: string; // date
     }
     export type TransactionId = string;
     export type TransactionState = 'WaitingForSignatures' | 'Signed';

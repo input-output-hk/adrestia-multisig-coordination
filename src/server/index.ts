@@ -10,7 +10,7 @@ const start = async (databaseInstance: Pool) => {
   let server;
   try {
     const environment: Environment = parseEnvironment();
-    const repository = Repostories.configure(databaseInstance);
+    const repository = await Repostories.configure(databaseInstance);
     const services = Services.configure(repository);
     server = buildServer(services, environment.LOGGER_LEVEL);
 
