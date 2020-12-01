@@ -4,6 +4,7 @@ import StatusCodes from 'http-status-codes';
 import { Pool } from 'pg';
 import { Errors } from '../../../src/server/utils/errors';
 import { setupDatabase, setupServer } from '../utils/test-utils';
+import { createWallet, defaultCosigner } from './wallet-test-utils';
 
 describe('/wallets endpoint', () => {
   let database: Pool;
@@ -18,18 +19,11 @@ describe('/wallets endpoint', () => {
   });
 
   test('should return the wallet id', async () => {
-    const response = await server.inject({
-      method: 'post',
-      url: '/wallets',
-      payload: {
-        walletName: 'someName',
-        m: 2,
-        n: 3,
-        cosigner: {
-          cosignerAlias: 'someAlias',
-          pubKey: 'someValidKey'
-        }
-      }
+    const response = await createWallet(server, {
+      walletName: 'someName',
+      m: 2,
+      n: 3,
+      cosigner: defaultCosigner
     });
 
     expect(response.statusCode).toEqual(StatusCodes.OK);
@@ -37,18 +31,11 @@ describe('/wallets endpoint', () => {
   });
 
   test('should return error if m is greater than n', async () => {
-    const response = await server.inject({
-      method: 'post',
-      url: '/wallets',
-      payload: {
-        walletName: 'someName',
-        m: 3,
-        n: 2,
-        cosigner: {
-          cosignerAlias: 'someAlias',
-          pubKey: 'someValidKey'
-        }
-      }
+    const response = await createWallet(server, {
+      walletName: 'someName',
+      m: 3,
+      n: 2,
+      cosigner: defaultCosigner
     });
 
     expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
@@ -56,18 +43,11 @@ describe('/wallets endpoint', () => {
   });
 
   test('should return error if walletName is empty', async () => {
-    const response = await server.inject({
-      method: 'post',
-      url: '/wallets',
-      payload: {
-        walletName: '',
-        m: 2,
-        n: 3,
-        cosigner: {
-          cosignerAlias: 'someAlias',
-          pubKey: 'someValidKey'
-        }
-      }
+    const response = await createWallet(server, {
+      walletName: '',
+      m: 2,
+      n: 3,
+      cosigner: defaultCosigner
     });
 
     expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
@@ -75,18 +55,11 @@ describe('/wallets endpoint', () => {
   });
 
   test('should return error if m is smaller than 1', async () => {
-    const response = await server.inject({
-      method: 'post',
-      url: '/wallets',
-      payload: {
-        walletName: 'someName',
-        m: 0,
-        n: 3,
-        cosigner: {
-          cosignerAlias: 'someAlias',
-          pubKey: 'someValidKey'
-        }
-      }
+    const response = await createWallet(server, {
+      walletName: 'someName',
+      m: 0,
+      n: 3,
+      cosigner: defaultCosigner
     });
 
     expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
@@ -94,17 +67,13 @@ describe('/wallets endpoint', () => {
   });
 
   test('should return error if pubKey is not valid', async () => {
-    const response = await server.inject({
-      method: 'post',
-      url: '/wallets',
-      payload: {
-        walletName: 'someName',
-        m: 2,
-        n: 3,
-        cosigner: {
-          cosignerAlias: 'someAlias',
-          pubKey: ''
-        }
+    const response = await createWallet(server, {
+      walletName: 'someName',
+      m: 2,
+      n: 3,
+      cosigner: {
+        cosignerAlias: 'someAlias',
+        pubKey: ''
       }
     });
 

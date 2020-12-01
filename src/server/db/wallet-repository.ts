@@ -6,6 +6,7 @@ import { mapToWallet } from '../utils/data-mapper';
 
 export interface WalletRepository {
   createWallet(walletName: string, m: number, n: number, cosigner: CoSigner): Promise<WalletId>;
+  joinWallet(walletId: string, cosigner: CoSigner): Promise<boolean>;
   findWallet(walletId: string): Promise<Wallet | undefined>;
   findCosigners(walletId: string): Promise<CoSigner[]>;
   countPendingTransactions(walletId: string): Promise<number | undefined>;
@@ -48,6 +49,19 @@ export const configure = (databaseInstance: Pool): WalletRepository =>
       await readyDatabaseInstance.query(WalletQueries.insertCosignerInWallet(), [walletId, cosigner.pubKey]);
 
       return walletId;
+    },
+    joinWallet: async (walletId, cosigner) => {
+      const isValidWallet: boolean =
+        (await databaseInstance.query(WalletQueries.findWallet(), [walletId])).rowCount >= 1;
+      if (isValidWallet) {
+        await databaseInstance.query(WalletQueries.insertCosigner(), [
+          cosigner.pubKey,
+          cosigner.cosignerAlias,
+          new Date()
+        ]);
+        await readyDatabaseInstance.query(WalletQueries.insertCosignerInWallet(), [walletId, cosigner.pubKey]);
+      }
+      return isValidWallet;
     },
     findWallet: async walletId => {
       const result: QueryResultRow = await databaseInstance.query(WalletQueries.findWallet(), [walletId]);

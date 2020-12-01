@@ -1,6 +1,7 @@
 import { WalletRepository } from '../../../src/server/db/wallet-repository';
-import { Wallet } from '../../../src/server/models';
+import { CoSigner, Wallet } from '../../../src/server/models';
 import configure, { WalletService } from '../../../src/server/services/wallet-service';
+import { JoinWalletResult, JoinWalletResults } from '../../../src/server/services/wallet-service-helper';
 
 describe('Wallet Service', () => {
   let walletService: WalletService;
@@ -14,7 +15,7 @@ describe('Wallet Service', () => {
     walletId: 'someId',
     walletName: 'someName',
     initiator: mockCosigner.pubKey,
-    createDate: new Date().toString(),
+    createdAt: new Date().toString(),
     m: 2,
     n: 3
   };
@@ -23,7 +24,8 @@ describe('Wallet Service', () => {
     createWallet: async () => 'someId',
     findWallet: async () => mockWallet,
     findCosigners: async () => [mockCosigner],
-    countPendingTransactions: async () => 0
+    countPendingTransactions: async () => 0,
+    joinWallet: async () => true
   };
 
   beforeAll(() => {
@@ -42,6 +44,19 @@ describe('Wallet Service', () => {
       expect(walletState?.initiator).toBe(mockCosigner.pubKey);
       expect(walletState?.walletId).toBe('someId');
       expect(walletState?.walletState).toBe('WaitingForCosigners');
+    });
+
+    it('Join Wallet returns wallet state', async () => {
+      const m = 2;
+      const n = 3;
+      expect(await walletService.createWallet('someName', m, n, mockCosigner)).toBe('someId');
+      const cosigner: CoSigner = {
+        cosignerAlias: 'someAlias',
+        pubKey: 'someKey'
+      };
+      const result: JoinWalletResult = await walletService.joinWallet('someId', cosigner);
+      expect(result.success).toBeTruthy();
+      expect(result.walletState).toBe('WaitingForCosigners');
     });
   });
 });

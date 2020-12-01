@@ -28,16 +28,34 @@ describe('Server test', () => {
     expect(response.json().message).toEqual("body should have required property 'walletName'");
   });
 
-  // Implement when using the db
-  test.skip('should return a generic error if there is db connection problem', async () => {
-    await database.end();
+  test('should return a generic error if there is db connection problem', async () => {
+    const walletInitiator = {
+      cosignerAlias: 'someAlias',
+      pubKey: 'someValidKey'
+    };
     const response = await server.inject({
       method: 'post',
-      url: '/sample',
-      payload: { param: 'Hi!' }
+      url: '/wallets',
+      payload: {
+        walletName: 'someName',
+        m: 2,
+        n: 3,
+        cosigner: walletInitiator
+      }
     });
 
-    expect(response.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
-    expect(response.json()).toEqual('');
+    expect(response.statusCode).toEqual(StatusCodes.OK);
+    expect(response.json()).toHaveProperty('walletId');
+    const walletId: string = response.json().walletId;
+
+    await database.end();
+
+    const walletState = await server.inject({
+      method: 'get',
+      url: `/wallets/${walletId}`,
+      payload: {}
+    });
+
+    expect(walletState.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
   });
 });

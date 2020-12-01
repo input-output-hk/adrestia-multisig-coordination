@@ -1,8 +1,10 @@
 /* eslint-disable no-magic-numbers */
+import { create } from 'domain';
 import { FastifyInstance } from 'fastify';
 import StatusCodes from 'http-status-codes';
 import { Pool } from 'pg';
 import { setupDatabase, setupServer } from '../utils/test-utils';
+import { createWallet, defaultCosigner, getWallet } from './wallet-test-utils';
 
 describe('/wallets/{walletId} endpoint', () => {
   let database: Pool;
@@ -17,64 +19,30 @@ describe('/wallets/{walletId} endpoint', () => {
   });
 
   test('should return the wallet state', async () => {
-    const walletInitiator = {
-      cosignerAlias: 'someAlias',
-      pubKey: 'someValidKey'
-    };
-    const response = await server.inject({
-      method: 'post',
-      url: '/wallets',
-      payload: {
-        walletName: 'someName',
-        m: 2,
-        n: 3,
-        cosigner: walletInitiator
-      }
-    });
+    const walletResponse = await createWallet(server);
 
-    expect(response.statusCode).toEqual(StatusCodes.OK);
-    expect(response.json()).toHaveProperty('walletId');
-    const walletId: string = response.json().walletId;
+    expect(walletResponse.statusCode).toEqual(StatusCodes.OK);
+    expect(walletResponse.json()).toHaveProperty('walletId');
 
-    const walletState = await server.inject({
-      method: 'get',
-      url: `/wallets/${walletId}`,
-      payload: {}
-    });
+    const walletId: string = walletResponse.json().walletId;
+    const walletStateResponse = await getWallet(server, walletId);
 
-    expect(walletState.statusCode).toEqual(StatusCodes.OK);
-    expect(walletState.json()).toHaveProperty('walletState');
-    expect(walletState.json().walletState).toBe('WaitingForCosigners');
-    expect(walletState.json()).toHaveProperty('pendingTxs');
-    expect(walletState.json()).toHaveProperty('cosigners');
-    expect(walletState.json().cosigners).toStrictEqual([walletInitiator]);
+    expect(walletStateResponse.statusCode).toEqual(StatusCodes.OK);
+    expect(walletStateResponse.json()).toHaveProperty('walletState');
+    expect(walletStateResponse.json().walletState).toBe('WaitingForCosigners');
+    expect(walletStateResponse.json()).toHaveProperty('pendingTxs');
+    expect(walletStateResponse.json()).toHaveProperty('cosigners');
+    expect(walletStateResponse.json().cosigners).toStrictEqual([defaultCosigner]);
   });
 
   test('should return the wallet not found', async () => {
-    const walletInitiator = {
-      cosignerAlias: 'someAlias',
-      pubKey: 'someValidKey'
-    };
-    const response = await server.inject({
-      method: 'post',
-      url: '/wallets',
-      payload: {
-        walletName: 'someName',
-        m: 2,
-        n: 3,
-        cosigner: walletInitiator
-      }
-    });
+    const response = await createWallet(server);
 
     expect(response.statusCode).toEqual(StatusCodes.OK);
     expect(response.json()).toHaveProperty('walletId');
-    const walletId = 'someInvalidId';
 
-    const walletState = await server.inject({
-      method: 'get',
-      url: `/wallets/${walletId}`,
-      payload: {}
-    });
+    const walletId = 'someInvalidId';
+    const walletState = await getWallet(server, walletId);
 
     expect(walletState.statusCode).toEqual(StatusCodes.NOT_FOUND);
   });

@@ -7,13 +7,13 @@ export const mapToWalletCreationResponse = (result: string): Components.Response
 });
 
 export const mapToWallet = (result: QueryResultRow): Wallet => {
-  const { id, wallet_name, n, m, create_date, initiator } = result;
+  const { id, wallet_name, n, m, created_at, initiator } = result;
   return {
     walletId: id,
     walletName: wallet_name,
     n,
     m,
-    createDate: create_date,
+    createdAt: created_at,
     initiator
   };
 };

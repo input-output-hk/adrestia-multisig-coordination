@@ -1,4 +1,5 @@
 import ApiError from '../api-error';
+import { JoinWalletResults } from '../services/wallet-service-helper';
 
 export interface CustomError {
   message: string;
@@ -22,6 +23,8 @@ const invalidWalletN = buildApiError(Errors.INVALID_WALLET_INPUT_N);
 const invalidWalletName = buildApiError(Errors.WALLET_NAME_EMPTY);
 const invalidPubKey = buildApiError(Errors.INVALID_PUBKEY);
 const walletNotFound = buildApiError(Errors.WALLET_NOT_FOUND);
+const alreadyJoined = buildApiError({ message: JoinWalletResults.alreadyJoined.reason!, code: 400 });
+const walletIsFull = buildApiError({ message: JoinWalletResults.walletFull.reason!, code: 400 });
 
 export const ErrorFactory = {
   invalidPubKey,
@@ -29,5 +32,7 @@ export const ErrorFactory = {
   invalidWalletMAndN,
   invalidWalletM,
   invalidWalletN,
-  walletNotFound
+  walletNotFound,
+  alreadyJoined,
+  walletIsFull
 };
