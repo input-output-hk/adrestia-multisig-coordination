@@ -14,7 +14,7 @@ export interface Wallet {
   walletName: string;
   m: number;
   n: number;
-  createDate: string;
+  createdAt: string;
   initiator: PubKey;
 }
 
@@ -29,4 +29,5 @@ export interface Transaction {
 export type WalletStateResponse = Wallet & {
   walletState: WalletState;
   pendingTxs: number;
+  cosigners: CoSigner[];
 };
