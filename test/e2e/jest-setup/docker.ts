@@ -8,7 +8,7 @@ const CONTAINER_NAME = 'mcs-test';
 
 export const removePostgresContainer = async (): Promise<void> => {
   const docker = new Docker();
-  const container = await docker.getContainer(CONTAINER_NAME);
+  const container = docker.getContainer(CONTAINER_NAME);
   await container.stop();
   await container.remove();
 };

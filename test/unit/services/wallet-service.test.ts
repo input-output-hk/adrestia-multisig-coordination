@@ -1,7 +1,8 @@
 import { WalletRepository } from '../../../src/server/db/wallet-repository';
-import { CoSigner, Wallet } from '../../../src/server/models';
+import { CoSigner, Transaction, Wallet } from '../../../src/server/models';
 import configure, { WalletService } from '../../../src/server/services/wallet-service';
-import { JoinWalletResult, JoinWalletResults } from '../../../src/server/services/wallet-service-helper';
+import { JoinWalletResult } from '../../../src/server/services/wallet-service-helper';
+import { defaultCosigner } from '../../e2e/wallet/wallet-test-utils';
 
 describe('Wallet Service', () => {
   let walletService: WalletService;
@@ -20,12 +21,23 @@ describe('Wallet Service', () => {
     n: 3
   };
 
+  const mockTransaction: Transaction = {
+    txId: 'someId',
+    transactionState: 'WaitingForSignatures',
+    unsignedTransaction: 'someTransactionToBeSigned',
+    createdAt: new Date().toString(),
+    updatedAt: new Date().toString(),
+    issuer: 'someKey'
+  };
+
   const mockRepository: WalletRepository = {
     createWallet: async () => 'someId',
-    findWallet: async () => mockWallet,
+    findWallet: async () => ({ valid: true, wallet: mockWallet }),
     findCosigners: async () => [mockCosigner],
-    countPendingTransactions: async () => 0,
-    joinWallet: async () => true
+    countPendingTransactions: async () => ({ valid: true, pendingTxs: 0 }),
+    joinWallet: async () => true,
+    createTransaction: async () => ({ valid: true, wallet: mockTransaction }),
+    isCosigner: async () => false
   };
 
   beforeAll(() => {
@@ -40,21 +52,18 @@ describe('Wallet Service', () => {
     });
 
     it('Get wallet state', async () => {
-      const walletState = await walletService.getWalletState('someId');
-      expect(walletState?.initiator).toBe(mockCosigner.pubKey);
-      expect(walletState?.walletId).toBe('someId');
-      expect(walletState?.walletState).toBe('WaitingForCosigners');
+      const result = await walletService.getWalletState('someId');
+      expect(result.valid).toBeTruthy();
+      expect(result.wallet!.initiator).toBe(mockCosigner.pubKey);
+      expect(result.wallet!.walletId).toBe('someId');
+      expect(result.wallet!.walletState).toBe('WaitingForCosigners');
     });
 
     it('Join Wallet returns wallet state', async () => {
       const m = 2;
       const n = 3;
       expect(await walletService.createWallet('someName', m, n, mockCosigner)).toBe('someId');
-      const cosigner: CoSigner = {
-        cosignerAlias: 'someAlias',
-        pubKey: 'someKey'
-      };
-      const result: JoinWalletResult = await walletService.joinWallet('someId', cosigner);
+      const result: JoinWalletResult = await walletService.joinWallet('someId', defaultCosigner);
       expect(result.success).toBeTruthy();
       expect(result.walletState).toBe('WaitingForCosigners');
     });

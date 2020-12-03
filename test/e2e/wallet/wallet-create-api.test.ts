@@ -11,7 +11,7 @@ describe('/wallets endpoint', () => {
   let server: FastifyInstance;
   beforeAll(async () => {
     database = setupDatabase(false);
-    server = setupServer(database);
+    server = await setupServer(database);
   });
 
   afterAll(async () => {

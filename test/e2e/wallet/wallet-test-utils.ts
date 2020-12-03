@@ -1,5 +1,5 @@
 import { FastifyInstance, HTTPInjectResponse } from 'fastify';
-import { CoSigner, Wallet, WalletId } from '../../../src/server/models';
+import { CoSigner, WalletId } from '../../../src/server/models';
 import StatusCodes from 'http-status-codes';
 import uuid from 'uuid';
 
@@ -13,6 +13,11 @@ export const defaultWallet: Components.RequestBodies.CreateWallet = {
   m: 2,
   n: 3,
   cosigner: defaultCosigner
+};
+
+export const defaultTransactionProposal: Components.RequestBodies.TransactionProposal = {
+  tx: 'someTransaction',
+  issuer: defaultCosigner.pubKey
 };
 
 export const createCosigner = (alias: string): CoSigner => ({
@@ -38,6 +43,17 @@ export const joinWallet = async (
   await server.inject({
     method: 'post',
     url: `/wallets/${walletId}/join`,
+    payload: request
+  });
+
+export const newTransactionProposal = async (
+  server: FastifyInstance,
+  walletId: string,
+  request: Components.RequestBodies.TransactionProposal = defaultTransactionProposal
+): Promise<HTTPInjectResponse> =>
+  await server.inject({
+    method: 'post',
+    url: `/wallets/${walletId}/proposal`,
     payload: request
   });
 

@@ -1,5 +1,4 @@
 /* eslint-disable no-magic-numbers */
-import { create } from 'domain';
 import { FastifyInstance } from 'fastify';
 import StatusCodes from 'http-status-codes';
 import { Pool } from 'pg';
@@ -11,7 +10,7 @@ describe('/wallets/{walletId} endpoint', () => {
   let server: FastifyInstance;
   beforeAll(async () => {
     database = setupDatabase(false);
-    server = setupServer(database);
+    server = await setupServer(database);
   });
 
   afterAll(async () => {

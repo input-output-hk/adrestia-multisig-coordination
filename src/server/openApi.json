@@ -91,7 +91,7 @@
       },
       "Transaction": {
         "type": "object",
-        "required": ["transactionId", "unsignedTransaction", "transactionState", "creationDate", "updateDate"],
+        "required": ["transactionId", "unsignedTransaction", "transactionState", "createdAt", "updatedAt"],
         "properties": {
           "transactionId": {
             "$ref": "#/components/schemas/TransactionId"
@@ -103,11 +103,11 @@
             "type": "string",
             "enum": ["WaitingForSignatures", "Signed"]
           },
-          "creationDate": {
+          "createdAt": {
             "type": "string",
             "format": "date"
           },
-          "updateDate": {
+          "updatedAt": {
             "type": "string",
             "format": "date"
           }
