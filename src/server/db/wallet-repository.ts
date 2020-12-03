@@ -29,102 +29,82 @@ const getCosigners = async (databaseInstance: Pool, walletId: string) => {
   return cosigners;
 };
 
-const prepareDB = async (
-  databaseInstance: Pool,
-  configureRepository: (readyDatabaseInstance: Pool) => WalletRepository
-): Promise<WalletRepository> => {
-  // insert tables if not exist
-  await databaseInstance.query(WalletQueries.createCosignersTable());
-  await databaseInstance.query(WalletQueries.createWalletTable());
-  await databaseInstance.query(WalletQueries.createWalletCosignersTable());
-  await databaseInstance.query(WalletQueries.createTransactionsTable());
-  await databaseInstance.query(WalletQueries.createSignaturesTable());
+export const configure = (databaseInstance: Pool): WalletRepository => ({
+  async createWallet(walletName: string, m: number, n: number, cosigner: CoSigner) {
+    const walletId: WalletId = uuid.v4();
 
-  return configureRepository(databaseInstance);
-};
+    await databaseInstance.query(WalletQueries.insertCosigner(), [cosigner.pubKey, cosigner.cosignerAlias, new Date()]);
 
-export const configure = async (databaseInstance: Pool): Promise<WalletRepository> =>
-  prepareDB(databaseInstance, readyDatabaseInstance => ({
-    async createWallet(walletName: string, m: number, n: number, cosigner: CoSigner) {
-      const walletId: WalletId = uuid.v4();
+    await databaseInstance.query(WalletQueries.insertWallet(), [
+      walletId,
+      walletName,
+      m,
+      n,
+      new Date(),
+      cosigner.pubKey
+    ]);
 
-      await readyDatabaseInstance.query(WalletQueries.insertCosigner(), [
+    await databaseInstance.query(WalletQueries.insertCosignerInWallet(), [walletId, cosigner.pubKey]);
+
+    return walletId;
+  },
+  joinWallet: async (walletId, cosigner) => {
+    const isValidWallet: boolean = (await databaseInstance.query(WalletQueries.findWallet(), [walletId])).rowCount >= 1;
+    if (isValidWallet) {
+      await databaseInstance.query(WalletQueries.insertCosigner(), [
         cosigner.pubKey,
         cosigner.cosignerAlias,
         new Date()
       ]);
-
-      await readyDatabaseInstance.query(WalletQueries.insertWallet(), [
+      await databaseInstance.query(WalletQueries.insertCosignerInWallet(), [walletId, cosigner.pubKey]);
+    }
+    return isValidWallet;
+  },
+  findWallet: async walletId => {
+    const result: QueryResultRow = await databaseInstance.query(WalletQueries.findWallet(), [walletId]);
+    if (result.rowCount === 1) {
+      return { valid: true, wallet: mapToWallet(result.rows[0]) };
+    }
+    return { valid: false };
+  },
+  findCosigners: async walletId => await getCosigners(databaseInstance, walletId),
+  countPendingTransactions: async walletId => ({ valid: false }), // @todo implement
+  createTransaction: async (walletId, transactionProposal) => {
+    const result: QueryResultRow = await databaseInstance.query(WalletQueries.findWallet(), [walletId]);
+    const isValidWallet = result.rowCount === 1;
+    if (isValidWallet) {
+      const transactionId = uuid.v4();
+      const now = new Date();
+      await databaseInstance.query(WalletQueries.insertTransaction(), [
+        transactionId,
         walletId,
-        walletName,
-        m,
-        n,
-        new Date(),
-        cosigner.pubKey
+        now,
+        now,
+        transactionProposal.tx,
+        transactionProposal.issuer
       ]);
 
-      await readyDatabaseInstance.query(WalletQueries.insertCosignerInWallet(), [walletId, cosigner.pubKey]);
+      const transaction: Transaction = {
+        txId: transactionId,
+        transactionState: 'WaitingForSignatures',
+        createdAt: now.toString(),
+        updatedAt: now.toString(),
+        unsignedTransaction: transactionProposal.tx,
+        issuer: transactionProposal.issuer
+      };
 
-      return walletId;
-    },
-    joinWallet: async (walletId, cosigner) => {
-      const isValidWallet: boolean =
-        (await databaseInstance.query(WalletQueries.findWallet(), [walletId])).rowCount >= 1;
-      if (isValidWallet) {
-        await databaseInstance.query(WalletQueries.insertCosigner(), [
-          cosigner.pubKey,
-          cosigner.cosignerAlias,
-          new Date()
-        ]);
-        await readyDatabaseInstance.query(WalletQueries.insertCosignerInWallet(), [walletId, cosigner.pubKey]);
-      }
-      return isValidWallet;
-    },
-    findWallet: async walletId => {
-      const result: QueryResultRow = await databaseInstance.query(WalletQueries.findWallet(), [walletId]);
-      if (result.rowCount === 1) {
-        return { valid: true, wallet: mapToWallet(result.rows[0]) };
-      }
-      return { valid: false };
-    },
-    findCosigners: async walletId => await getCosigners(databaseInstance, walletId),
-    countPendingTransactions: async walletId => ({ valid: false }), // @todo implement
-    createTransaction: async (walletId, transactionProposal) => {
-      const result: QueryResultRow = await databaseInstance.query(WalletQueries.findWallet(), [walletId]);
-      const isValidWallet = result.rowCount === 1;
-      if (isValidWallet) {
-        const transactionId = uuid.v4();
-        const now = new Date();
-        await databaseInstance.query(WalletQueries.insertTransaction(), [
-          transactionId,
-          walletId,
-          now,
-          now,
-          transactionProposal.tx,
-          transactionProposal.issuer
-        ]);
-
-        const transaction: Transaction = {
-          txId: transactionId,
-          transactionState: 'WaitingForSignatures',
-          createdAt: now.toString(),
-          updatedAt: now.toString(),
-          unsignedTransaction: transactionProposal.tx,
-          issuer: transactionProposal.issuer
-        };
-
-        await databaseInstance.query(WalletQueries.insertSignature(), [
-          uuid.v4(),
-          transactionId,
-          transactionProposal.issuer,
-          now
-        ]);
-        return { valid: true, transaction };
-      }
-      return { valid: false };
-    },
-    isCosigner: async (walletId: string, issuer: string) => {
-      const cosigners: CoSigner[] = await getCosigners(databaseInstance, walletId);
-      return cosigners.find(cosigner => cosigner.pubKey === issuer) !== undefined;
+      await databaseInstance.query(WalletQueries.insertSignature(), [
+        uuid.v4(),
+        transactionId,
+        transactionProposal.issuer,
+        now
+      ]);
+      return { valid: true, transaction };
     }
-  }));
+    return { valid: false };
+  },
+  isCosigner: async (walletId: string, issuer: string) => {
+    const cosigners: CoSigner[] = await getCosigners(databaseInstance, walletId);
+    return cosigners.find(cosigner => cosigner.pubKey === issuer) !== undefined;
+  }
+});

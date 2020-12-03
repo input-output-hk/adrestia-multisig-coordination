@@ -9,9 +9,9 @@ import { createWallet, defaultCosigner } from './wallet-test-utils';
 describe('/wallets endpoint', () => {
   let database: Pool;
   let server: FastifyInstance;
-  beforeAll(async () => {
+  beforeAll(() => {
     database = setupDatabase(false);
-    server = await setupServer(database);
+    server = setupServer(database);
   });
 
   afterAll(async () => {

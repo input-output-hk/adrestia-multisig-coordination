@@ -8,9 +8,9 @@ import { newTransactionProposal, testCreateWallet } from './wallet-test-utils';
 describe('/wallets/${walletId}/proposal endpoint', () => {
   let database: Pool;
   let server: FastifyInstance;
-  beforeAll(async () => {
+  beforeAll(() => {
     database = setupDatabase(false);
-    server = await setupServer(database);
+    server = setupServer(database);
   });
 
   afterAll(async () => {

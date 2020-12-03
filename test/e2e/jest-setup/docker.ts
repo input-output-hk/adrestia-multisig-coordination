@@ -47,12 +47,12 @@ export const setupPostgresContainer = async (
   //  User: 'root'
   // });
   //
-  //  // Wait for the db service to be running (container started event is not enough)
-  //  await containerExec(container, [
-  //    'bash',
-  //    '-c',
-  //    `until psql -U ${user} -d ${database} -c "select 1" > /dev/null 2>&1 ; do sleep 1; done`
-  //  ]);
+  // Wait for the db service to be running (container started event is not enough)
+  await containerExec(container, [
+    'bash',
+    '-c',
+    `until psql -U ${user} -d ${database} -c "select 1" > /dev/null 2>&1 ; do sleep 1; done`
+  ]);
   //
   //  // Execute backup restore
   //  await containerExec(container, ['bash', '-c', `cat ${CONTAINER_TEMP_DIR}/db.bak | psql -U ${user} ${database}`]);
