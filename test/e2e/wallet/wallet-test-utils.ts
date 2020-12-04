@@ -1,7 +1,7 @@
 import { FastifyInstance, HTTPInjectResponse } from 'fastify';
 import { CoSigner, WalletId } from '../../../src/server/models';
 import StatusCodes from 'http-status-codes';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 export const defaultCosigner: CoSigner = {
   cosignerAlias: 'someAlias',
@@ -22,7 +22,7 @@ export const defaultTransactionProposal: Components.RequestBodies.TransactionPro
 
 export const createCosigner = (alias: string): CoSigner => ({
   cosignerAlias: alias,
-  pubKey: uuid.v4()
+  pubKey: uuidv4()
 });
 
 export const createWallet = async (
