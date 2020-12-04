@@ -14,8 +14,8 @@ export const setupDatabase = (offline: boolean): Pool => {
   return createPool(process.env.DB_CONNECTION_STRING);
 };
 
-export const setupServer = async (database: Pool): Promise<FastifyInstance> => {
-  const repositories = await Repositories.configure(database);
+export const setupServer = (database: Pool): FastifyInstance => {
+  const repositories = Repositories.configure(database);
   const services = Services.configure(repositories);
   return buildServer(services, process.env.LOGGER_LEVEL);
 };

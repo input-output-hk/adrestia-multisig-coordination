@@ -11,6 +11,6 @@ export interface Repositories {
  *
  * @param database connection to be used to run queries
  */
-export const configure = async (database: Pool): Promise<Repositories> => ({
-  walletRepository: await WalletRepository.configure(database)
+export const configure = (database: Pool): Repositories => ({
+  walletRepository: WalletRepository.configure(database)
 });
