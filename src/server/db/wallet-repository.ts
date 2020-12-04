@@ -1,7 +1,7 @@
 import { Pool, QueryResultRow } from 'pg';
 import { Wallet, CoSigner, WalletId, Transaction } from '../models';
 import WalletQueries from './queries/wallet-queries';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { mapToWallet } from '../utils/data-mapper';
 
 export interface WalletRepository {
@@ -31,7 +31,7 @@ const getCosigners = async (databaseInstance: Pool, walletId: string) => {
 
 export const configure = (databaseInstance: Pool): WalletRepository => ({
   async createWallet(walletName: string, m: number, n: number, cosigner: CoSigner) {
-    const walletId: WalletId = uuid.v4();
+    const walletId: WalletId = uuidv4();
 
     await databaseInstance.query(WalletQueries.insertCosigner(), [cosigner.pubKey, cosigner.cosignerAlias, new Date()]);
 
@@ -73,7 +73,7 @@ export const configure = (databaseInstance: Pool): WalletRepository => ({
     const result: QueryResultRow = await databaseInstance.query(WalletQueries.findWallet(), [walletId]);
     const isValidWallet = result.rowCount === 1;
     if (isValidWallet) {
-      const transactionId = uuid.v4();
+      const transactionId = uuidv4();
       const now = new Date();
       await databaseInstance.query(WalletQueries.insertTransaction(), [
         transactionId,
@@ -94,7 +94,7 @@ export const configure = (databaseInstance: Pool): WalletRepository => ({
       };
 
       await databaseInstance.query(WalletQueries.insertSignature(), [
-        uuid.v4(),
+        uuidv4(),
         transactionId,
         transactionProposal.issuer,
         now
