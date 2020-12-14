@@ -1,21 +1,25 @@
 /* eslint-disable no-magic-numbers */
 import { FastifyInstance } from 'fastify';
 import StatusCodes from 'http-status-codes';
-import { Pool } from 'pg';
+import { Sequelize } from 'sequelize/types';
 import { Errors } from '../../../src/server/utils/errors';
 import { setupDatabase, setupServer } from '../utils/test-utils';
 import { createWallet, defaultCosigner } from './wallet-test-utils';
 
 describe('/wallets endpoint', () => {
-  let database: Pool;
+  let database: Sequelize;
   let server: FastifyInstance;
-  beforeAll(() => {
-    database = setupDatabase(false);
+  beforeAll(async () => {
+    database = await setupDatabase(false);
     server = setupServer(database);
   });
 
   afterAll(async () => {
-    await database.end();
+    await database.close();
+  });
+
+  beforeEach(async () => {
+    await database.sync({ force: true });
   });
 
   test('should return the wallet id', async () => {

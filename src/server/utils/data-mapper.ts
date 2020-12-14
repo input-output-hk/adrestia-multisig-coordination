@@ -1,27 +1,32 @@
-import { QueryResultRow } from 'pg';
-import { Transaction, Wallet } from '../models';
-/* eslint-disable camelcase */
+import Transaction from '../model/transaction';
+import Wallet from '../model/wallet';
+import { TransactionState, WalletState } from '../models';
 
-export const mapToWalletCreationResponse = (result: string): Components.Responses.CreateWallet => ({
-  walletId: result
+export const toTransactionResponse = (
+  result: Transaction,
+  state: TransactionState
+): Components.Responses.TransactionProposal => ({
+  transactionId: result.id,
+  transactionState: state,
+  createdAt: result.createdAt.toDateString(),
+  updatedAt: result.updatedAt.toDateString(),
+  unsignedTransaction: result.unsignedTransaction
 });
 
-export const mapToWallet = (result: QueryResultRow): Wallet => {
-  const { id, wallet_name, n, m, created_at, initiator } = result;
-  return {
-    walletId: id,
-    walletName: wallet_name,
-    n,
-    m,
-    createdAt: created_at,
-    initiator
-  };
-};
-
-export const mapTransactionToTransactionResponse = (result: Transaction): Components.Responses.TransactionProposal => ({
-  transactionId: result.txId,
-  transactionState: result.transactionState,
-  createdAt: result.createdAt,
-  updatedAt: result.updatedAt,
-  unsignedTransaction: result.unsignedTransaction
+export const toWalletResponse = (
+  wallet: Wallet,
+  walletState: WalletState,
+  pendingTxs: number,
+  initiator: string,
+  cosigners: Components.Schemas.CoSigner[]
+): Components.Responses.WalletState => ({
+  id: wallet.id,
+  name: wallet.name,
+  m: wallet.m,
+  n: wallet.n,
+  initiator,
+  createdAt: wallet.createdAt.toDateString(),
+  pendingTxs,
+  state: walletState,
+  cosigners
 });

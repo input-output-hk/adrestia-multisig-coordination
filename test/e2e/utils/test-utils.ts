@@ -1,20 +1,24 @@
 import { FastifyInstance } from 'fastify';
 import * as Repositories from '../../../src/server/db/repositories';
 import * as Services from '../../../src/server/services/services';
-import createPool from '../../../src/server/db/connection';
 import buildServer from '../../../src/server/server';
-import { Pool } from 'pg';
+import { Sequelize } from 'sequelize';
+import { initialize } from '../../../src/server/model/init';
 
-export const setupDatabase = (offline: boolean): Pool => {
+export const setupDatabase = async (offline: boolean): Promise<Sequelize> => {
   if (offline) {
-    const poolMock = new Pool();
+    const poolMock = new Sequelize();
     poolMock.query = jest.fn();
     return poolMock;
   }
-  return createPool(process.env.DB_CONNECTION_STRING);
+  const databaseInstance = new Sequelize(process.env.DB_CONNECTION_STRING, {
+    logging: false
+  });
+  await initialize(databaseInstance);
+  return databaseInstance;
 };
 
-export const setupServer = (database: Pool): FastifyInstance => {
+export const setupServer = (database: Sequelize): FastifyInstance => {
   const repositories = Repositories.configure(database);
   const services = Services.configure(repositories);
   return buildServer(services, process.env.LOGGER_LEVEL);

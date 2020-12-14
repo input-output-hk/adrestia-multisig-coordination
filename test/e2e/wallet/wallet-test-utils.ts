@@ -1,5 +1,5 @@
 import { FastifyInstance, HTTPInjectResponse } from 'fastify';
-import { CoSigner, WalletId } from '../../../src/server/models';
+import { CoSigner, TransactionId, WalletId } from '../../../src/server/models';
 import StatusCodes from 'http-status-codes';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -17,6 +17,10 @@ export const defaultWallet: Components.RequestBodies.CreateWallet = {
 
 export const defaultTransactionProposal: Components.RequestBodies.TransactionProposal = {
   tx: 'someTransaction',
+  issuer: defaultCosigner.pubKey
+};
+
+export const defaultSignProposal: Components.RequestBodies.SignProposal = {
   issuer: defaultCosigner.pubKey
 };
 
@@ -57,6 +61,35 @@ export const newTransactionProposal = async (
     payload: request
   });
 
+export const signTransaction = async (
+  server: FastifyInstance,
+  transactionId: string,
+  request: Components.RequestBodies.SignProposal = defaultSignProposal
+): Promise<HTTPInjectResponse> =>
+  await server.inject({
+    method: 'post',
+    url: `/transactions/${transactionId}/sign`,
+    payload: request
+  });
+
+export const getTransactionProposals = async (
+  server: FastifyInstance,
+  walletId: string,
+  from?: string,
+  onlyPending?: boolean
+): Promise<HTTPInjectResponse> => {
+  let queryParameters = '';
+  if (from || onlyPending) {
+    queryParameters += '?';
+  }
+  queryParameters += from ? `from=${from}&` : '';
+  queryParameters += onlyPending ? `onlyPending=${onlyPending}` : '';
+  return await server.inject({
+    method: 'get',
+    url: `/wallets/${walletId}/proposal${queryParameters}`
+  });
+};
+
 export const getWallet = async (server: FastifyInstance, walletId: string): Promise<HTTPInjectResponse> =>
   await server.inject({
     method: 'get',
@@ -70,4 +103,13 @@ export const testCreateWallet = async (server: FastifyInstance): Promise<WalletI
   expect(response.json()).toHaveProperty('walletId');
 
   return response.json().walletId;
+};
+
+export const testNewTransaction = async (server: FastifyInstance, walletId: WalletId): Promise<TransactionId> => {
+  const response = await newTransactionProposal(server, walletId);
+  expect(response.statusCode).toBe(StatusCodes.OK);
+  expect(response.json()).toHaveProperty('transactionState');
+  expect(response.json().transactionState).toBe('WaitingForSignatures');
+  expect(response.json()).toHaveProperty('transactionId');
+  return response.json().transactionId;
 };

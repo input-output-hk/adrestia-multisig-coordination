@@ -10,9 +10,6 @@ export interface Services {
  *
  * @param repositories repositories to be used by the services
  */
-export const configure = (repositories: Repositories): Services => {
-  const walletServiceInstance = walletService(repositories.walletRepository);
-  return {
-    walletService: walletServiceInstance
-  };
-};
+export const configure = (repositories: Repositories): Services => ({
+  walletService: walletService(repositories.walletRepository)
+});

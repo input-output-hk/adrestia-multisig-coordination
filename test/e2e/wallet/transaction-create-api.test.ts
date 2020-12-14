@@ -1,20 +1,24 @@
 /* eslint-disable no-magic-numbers */
 import { FastifyInstance } from 'fastify';
 import StatusCodes from 'http-status-codes';
-import { Pool } from 'pg';
+import { Sequelize } from 'sequelize';
 import { setupDatabase, setupServer } from '../utils/test-utils';
 import { newTransactionProposal, testCreateWallet } from './wallet-test-utils';
 
 describe('/wallets/${walletId}/proposal endpoint', () => {
-  let database: Pool;
+  let database: Sequelize;
   let server: FastifyInstance;
-  beforeAll(() => {
-    database = setupDatabase(false);
+  beforeAll(async () => {
+    database = await setupDatabase(false);
     server = setupServer(database);
   });
 
   afterAll(async () => {
-    await database.end();
+    await database.close();
+  });
+
+  beforeEach(async () => {
+    await database.sync({ force: true });
   });
 
   test('should return transaction', async () => {

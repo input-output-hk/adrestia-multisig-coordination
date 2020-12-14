@@ -44,11 +44,15 @@ declare namespace Components {
     export type TransactionState = 'WaitingForSignatures' | 'Signed';
     export type UnsignedTransaction = string;
     export interface Wallet {
-      walletId: WalletId;
-      walletState: WalletState;
+      id: WalletId;
+      name: string;
+      m: number;
+      n: number;
+      state: WalletState;
       cosigners: CoSigner[];
       pendingTxs: number;
       createdAt: string; // date
+      initiator: PubKey;
     }
     export interface WalletCreation {
       walletName: string;
@@ -72,13 +76,15 @@ declare namespace Paths {
   namespace GetTransactionProposals {
     namespace Parameters {
       export type From = string; // date
+      export type OnlyPending = boolean;
       export type WalletId = string;
     }
     export interface PathParameters {
       walletId: Parameters.WalletId;
     }
     export interface QueryParameters {
-      from: Parameters.From /* date */;
+      from?: Parameters.From /* date */;
+      onlyPending?: Parameters.OnlyPending;
     }
     namespace Responses {
       export type $200 = Components.Responses.TransactionProposals;
