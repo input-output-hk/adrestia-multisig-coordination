@@ -1,7 +1,7 @@
 /* eslint-disable no-magic-numbers */
 import { FastifyInstance } from 'fastify';
 import StatusCodes from 'http-status-codes';
-import { Pool } from 'pg';
+import { Sequelize } from 'sequelize';
 import { CoSigner, WalletId } from '../../../src/server/models';
 import { setupDatabase, setupServer } from '../utils/test-utils';
 import {
@@ -14,15 +14,19 @@ import {
 } from './wallet-test-utils';
 
 describe('/wallets/{walletId}/join endpoint', () => {
-  let database: Pool;
+  let database: Sequelize;
   let server: FastifyInstance;
-  beforeAll(() => {
-    database = setupDatabase(false);
+  beforeAll(async () => {
+    database = await setupDatabase(false);
     server = setupServer(database);
   });
 
   afterAll(async () => {
-    await database.end();
+    await database.close();
+  });
+
+  beforeEach(async () => {
+    await database.sync({ force: true });
   });
 
   test('should return the wallet state after join', async () => {
@@ -49,8 +53,8 @@ describe('/wallets/{walletId}/join endpoint', () => {
     const walletWithCosigner = await getWallet(server, walletId);
 
     expect(walletWithCosigner.statusCode).toEqual(StatusCodes.OK);
-    expect(walletWithCosigner.json()).toHaveProperty('walletState');
-    expect(walletWithCosigner.json().walletState).toBe('WaitingForCosigners');
+    expect(walletWithCosigner.json()).toHaveProperty('state');
+    expect(walletWithCosigner.json().state).toBe('WaitingForCosigners');
     expect(walletWithCosigner.json()).toHaveProperty('pendingTxs');
     expect(walletWithCosigner.json()).toHaveProperty('cosigners');
     expect(walletWithCosigner.json().cosigners).toContainEqual(defaultCosigner);

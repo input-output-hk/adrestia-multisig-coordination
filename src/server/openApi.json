@@ -45,12 +45,21 @@
       },
       "Wallet": {
         "type": "object",
-        "required": ["walletId", "walletState", "cosigners", "pendingTxs", "createdAt"],
+        "required": ["id", "name", "m", "n", "state", "cosigners", "pendingTxs", "createdAt", "initiator"],
         "properties": {
-          "walletId": {
+          "id": {
             "$ref": "#/components/schemas/WalletId"
           },
-          "walletState": {
+          "name": {
+            "type": "string"
+          },
+          "m": {
+            "type": "number"
+          },
+          "n": {
+            "type": "number"
+          },
+          "state": {
             "$ref": "#/components/schemas/WalletState"
           },
           "cosigners": {
@@ -65,6 +74,9 @@
           "createdAt": {
             "type": "string",
             "format": "date"
+          },
+          "initiator": {
+            "$ref": "#/components/schemas/PubKey"
           }
         }
       },
@@ -473,10 +485,18 @@
           {
             "name": "from",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "string",
               "format": "date"
+            }
+          },
+          {
+            "name": "onlyPending",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
             }
           }
         ],

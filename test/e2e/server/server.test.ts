@@ -1,19 +1,19 @@
 /* eslint-disable no-magic-numbers */
 import { FastifyInstance } from 'fastify';
 import StatusCodes from 'http-status-codes';
-import { Pool } from 'pg';
+import { Sequelize } from 'sequelize';
 import { setupDatabase, setupServer } from '../utils/test-utils';
 
 describe('Server test', () => {
-  let database: Pool;
+  let database: Sequelize;
   let server: FastifyInstance;
   beforeAll(async () => {
-    database = setupDatabase(false);
-    server = await setupServer(database);
+    database = await setupDatabase(false);
+    server = setupServer(database);
   });
 
   afterAll(async () => {
-    await database.end();
+    await database.close();
   });
 
   test('should return a generic error if payload is not valid', async () => {
@@ -48,7 +48,7 @@ describe('Server test', () => {
     expect(response.json()).toHaveProperty('walletId');
     const walletId: string = response.json().walletId;
 
-    await database.end();
+    await database.close();
 
     const walletState = await server.inject({
       method: 'get',

@@ -1,16 +1,12 @@
 import { FastifyRequest, Logger } from 'fastify';
-import { WalletId, WalletStateResponse } from '../models';
 import { WalletService } from '../services/wallet-service';
-import { JoinWalletResults } from '../services/wallet-service-helper';
-import { mapToWalletCreationResponse, mapTransactionToTransactionResponse } from '../utils/data-mapper';
-import { ErrorFactory } from '../utils/errors';
 import { withValidWalletInput } from './wallet-controller-helper';
 
 export interface WalletController {
   createWallet(
     request: FastifyRequest<unknown, unknown, unknown, unknown, Components.RequestBodies.CreateWallet>
   ): Promise<Components.Responses.CreateWallet | Components.Schemas.ErrorResponse>;
-  getWalletState(request: FastifyRequest): Promise<WalletStateResponse>;
+  getWalletState(request: FastifyRequest): Promise<Components.Schemas.Wallet>;
   joinWallet(
     request: FastifyRequest<
       unknown,
@@ -29,6 +25,24 @@ export interface WalletController {
       Components.RequestBodies.TransactionProposal
     >
   ): Promise<Components.Responses.TransactionProposal | Components.Schemas.ErrorResponse>;
+  getTransactionProposals(
+    request: FastifyRequest<
+      unknown,
+      Paths.GetTransactionProposals.QueryParameters,
+      Paths.GetTransactionProposals.PathParameters,
+      unknown,
+      unknown
+    >
+  ): Promise<Components.Responses.TransactionProposals | Components.Schemas.ErrorResponse>;
+  signTransaction(
+    request: FastifyRequest<
+      unknown,
+      unknown,
+      Paths.SignTransaction.PathParameters,
+      unknown,
+      Components.RequestBodies.SignProposal
+    >
+  ): Promise<Components.Responses.SignTransaction | Components.Schemas.ErrorResponse>;
 }
 
 const configure = (walletService: WalletService): WalletController => ({
@@ -45,49 +59,41 @@ const configure = (walletService: WalletService): WalletController => ({
         validRequestBody.cosigner
       );
 
-      return mapToWalletCreationResponse(walletResult);
+      return {
+        walletId: walletResult
+      };
     });
   },
   getWalletState: async request => {
     const logger: Logger = request.log;
     logger.info(`[getWalletState] Request received with body ${request.body}`);
-    const walletState = await walletService.getWalletState(request.params.walletId);
-    if (walletState.valid && walletState.wallet) {
-      return walletState.wallet;
-    }
-    throw ErrorFactory.walletNotFound;
+    return await walletService.getWallet(request.params.walletId);
   },
   joinWallet: async request => {
     const logger: Logger = request.log;
     logger.info(`[joinWallet] Request received with body ${request.body}`);
-    const result = await walletService.joinWallet(request.params.walletId, request.body);
-    if (result.success && result.walletState) {
-      return { walletState: result.walletState };
-    }
-    if (result === JoinWalletResults.walletFull) {
-      throw ErrorFactory.walletIsFull;
-    } else if (result === JoinWalletResults.alreadyJoined) {
-      throw ErrorFactory.alreadyJoined;
-    }
-    throw ErrorFactory.walletNotFound;
+    return { walletState: await walletService.joinWallet(request.params.walletId, request.body) };
   },
   newTransactionProposal: async request => {
     const logger: Logger = request.log;
     logger.info(`[newTransactionProposal] Request received with body ${request.body}`);
-    const hasWallet = await walletService.hasWallet(request.params.walletId);
-    if (!hasWallet) {
-      throw ErrorFactory.walletNotFound;
-    }
+    return await walletService.newTransactionProposal(request.params.walletId, request.body);
+  },
+  getTransactionProposals: async request => {
+    const logger: Logger = request.log;
+    const from = request.query.from;
+    const pending = request.query.onlyPending;
+    logger.info(`[getTransactionProposals] Request received with query params from: ${from} - onlyPending: ${pending}`);
+    return await walletService.getTransactions(request.params.walletId, from, pending);
+  },
+  signTransaction: async request => {
+    const logger: Logger = request.log;
+    logger.info(`[signTransaction] Request received with request body ${request.body} and params ${request.params}`);
 
-    const isCosigner = await walletService.isCosigner(request.params.walletId, request.body.issuer);
-    if (!isCosigner) {
-      throw ErrorFactory.invalidPubKey;
-    }
-    const result = await walletService.newTransactionProposal(request.params.walletId, request.body);
-    if (result.valid && result.transaction) {
-      return mapTransactionToTransactionResponse(result.transaction);
-    }
-    throw ErrorFactory.walletNotFound;
+    const transactionId = request.params.txId;
+    const issuer = request.body.issuer;
+
+    return await walletService.signTransaction(transactionId, issuer);
   }
 });
 

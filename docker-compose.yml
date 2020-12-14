@@ -16,20 +16,20 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     restart: on-failure
+    ports:
+      - 5432:5432
     logging:
       driver: 'json-file'
       options:
         max-size: '200k'
         max-file: '10'
   multisig-coordination-server:
-    build:
-      context: ..
-      target: multisig-coordination-server
+    image: node
     environment:
-      - BIND_ADDRESS='0.0.0.0'
       - DB_CONNECTION_STRING=postgresql://postgres:notForProduction!@postgres:5432/cexplorer
       - LOGGER_LEVEL=debug
       - PORT=8080
+    command: bash -c "yarn --offline && yarn dev"
     expose:
       - 8080
     ports:
@@ -39,9 +39,9 @@ services:
       options:
         max-size: '200k'
         max-file: '10'
+    working_dir: /home/node/app
     volumes:
-      - ../config/network/${NETWORK:-mainnet}:/config
-      - node-ipc:/node-ipc
+      - ./:/home/node/app
 secrets:
   postgres_db:
     file: ./config/secrets/postgres_db
