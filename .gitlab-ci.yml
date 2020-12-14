@@ -1,0 +1,46 @@
+variables:
+  # Common variables to be able to build and push docker images
+  # https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-disabled
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ''
+  # Env variables
+  PORT: 8080
+  BIND_ADDRESS: 0.0.0.0
+  DB_CONNECTION_STRING: 'postgresql://postgres:password@db:5432/mcs'
+  LOGGER_LEVEL: 'fatal'
+  SKIP_TEST_PG_CONTAINER: 'true'
+  # https://hub.docker.com/_/postgres
+  POSTGRES_PASSWORD: "password"
+  POSTGRES_USER: "postgres"
+  POSTGRES_DB: "mcs"
+
+stages:
+  - test
+  - package
+
+test-backend:
+  image: node:14.5.0-alpine
+  services:
+    - name: postgres:11.10-alpine
+      alias: db
+  stage: test
+  script:
+    - yarn --offline --frozen-lockfile --non-interactive
+    - yarn lint
+    - yarn test
+  except:
+    - schedules
+
+package-backend:
+  image: node:14.5.0-alpine
+  services:
+    - docker:19.03.1-dind
+  stage: package
+  variables:
+  script:
+    - apk add docker git
+    - docker login -u gitlabci -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker build -t $DOCKER_IMAGE_NAME:$CI_COMMIT_SHORT_SHA .
+    - docker push $DOCKER_IMAGE_NAME:$CI_COMMIT_SHORT_SHA 
+  except:
+    - schedules

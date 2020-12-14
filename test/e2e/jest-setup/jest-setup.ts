@@ -4,7 +4,7 @@ import { Pool } from 'pg';
 import { parse } from 'pg-connection-string';
 import WalletQueries from '../../../src/server/db/queries/wallet-queries';
 import { setupDatabase } from '../utils/test-utils';
-import { setupPostgresContainer } from './docker';
+import { createTestContainer, setupPostgresContainer } from './docker';
 
 dotenv.config({ path: path.join(__dirname, '../../../.env.test') });
 
@@ -19,12 +19,14 @@ const prepareDB = async (databaseInstance: Pool) => {
 
 module.exports = async () => {
   const { user, database, password, port } = parse(process.env.DB_CONNECTION_STRING);
-  await setupPostgresContainer(
-    database ? database : 'test',
-    user ? user : 'postgres',
-    password ? password : 'mysecretpassword',
-    port ? port : '5432'
-  );
+
+  if (createTestContainer)
+    await setupPostgresContainer(
+      database ? database : 'test',
+      user ? user : 'postgres',
+      password ? password : 'mysecretpassword',
+      port ? port : '5432'
+    );
   const databaseInstance = setupDatabase(false);
   await prepareDB(databaseInstance);
   await databaseInstance.end();

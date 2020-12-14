@@ -1,3 +1,5 @@
+/* eslint-disable no-magic-numbers */
+/* eslint-disable no-console */
 import Docker from 'dockerode';
 import { containerExec, imageExists, pullImageAsync } from 'dockerode-utils';
 import path from 'path';
@@ -12,6 +14,8 @@ export const removePostgresContainer = async (): Promise<void> => {
   await container.stop();
   await container.remove();
 };
+
+export const createTestContainer = process.env.SKIP_TEST_PG_CONTAINER !== 'true';
 
 export const setupPostgresContainer = async (
   database: string,

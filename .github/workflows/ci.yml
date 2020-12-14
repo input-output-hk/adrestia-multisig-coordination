@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  pull_request:
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+        with:
+          path: multisig-coordination-server 
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Lint and test
+        working-directory: ./multisig-coordination-server
+        run: |
+          yarn install --offline --frozen-lockfile --logevel=error
+          yarn lint
+          yarn test
+        env:
+          PORT: 8080
+          LOGGER_LEVEL: debug
+          BIND_ADDRESS: 127.0.0.1
+          DB_CONNECTION_STRING: postgresql://postgres:notForProduction!@127.0.0.1:5432/mcs
