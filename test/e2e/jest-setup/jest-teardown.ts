@@ -1,5 +1,5 @@
-import { removePostgresContainer } from './docker';
+import { createTestContainer, removePostgresContainer } from './docker';
 
 module.exports = async () => {
-  await removePostgresContainer();
+  if (createTestContainer) await removePostgresContainer();
 };

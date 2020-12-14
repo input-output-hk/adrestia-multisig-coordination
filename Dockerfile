@@ -1,0 +1,33 @@
+FROM node:14.5.0-alpine as nodejs-builder
+
+# Copy deps
+FROM nodejs-builder as mcs-base
+RUN mkdir -p /app/src
+WORKDIR /app
+COPY  packages-cache /app/packages-cache
+COPY  package.json \
+      yarn.lock \
+      .yarnrc \
+      /app/
+
+# Build the app
+FROM mcs-base as mcs-builder
+COPY  tsconfig-dist.json \
+      tsconfig.json \
+      /app/
+RUN yarn --offline --frozen-lockfile --non-interactive
+COPY src /app/src
+RUN yarn build
+
+# Install offline prod deps
+FROM mcs-base as mcs-production-deps
+RUN yarn --offline --frozen-lockfile --non-interactive --production
+
+# Bundle everything on the final image
+FROM nodejs-builder as mcs
+ARG NETWORK=mainnet
+COPY --from=mcs-builder /app/dist /mcs/dist
+COPY --from=mcs-builder /app/src/server/openApi.json /mcs/dist/src/server
+COPY --from=mcs-production-deps /app/node_modules /mcs/node_modules
+EXPOSE 8080
+CMD ["node", "/mcs/dist/src/server/index.js"]
