@@ -1,5 +1,6 @@
 import fastify from 'fastify';
 import fastifyBlipp from 'fastify-blipp';
+import metricsPlugin from 'fastify-metrics';
 import openapiGlue from 'fastify-openapi-glue';
 import { Services } from './services/services';
 import * as Controllers from './controllers/controllers';
@@ -28,7 +29,7 @@ const buildServer = (
     service: Controllers.configure(services),
     noAdditional: true
   });
-
+  server.register(metricsPlugin, { endpoint: '/metrics' });
   return server;
 };
 
