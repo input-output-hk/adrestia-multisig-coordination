@@ -75,6 +75,7 @@ declare namespace Paths {
   }
   namespace GetTransactionProposals {
     namespace Parameters {
+      export type Cosigner = string;
       export type From = string; // date
       export type OnlyPending = boolean;
       export type WalletId = string;
@@ -85,6 +86,7 @@ declare namespace Paths {
     export interface QueryParameters {
       from?: Parameters.From /* date */;
       onlyPending?: Parameters.OnlyPending;
+      cosigner?: Parameters.Cosigner;
     }
     namespace Responses {
       export type $200 = Components.Responses.TransactionProposals;

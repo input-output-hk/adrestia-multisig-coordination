@@ -4,11 +4,15 @@ import StatusCodes from 'http-status-codes';
 import { Sequelize } from 'sequelize';
 import { setupDatabase, setupServer } from '../utils/test-utils';
 import {
+  createCosigner,
   createWallet,
   defaultCosigner,
   getTransactionProposals,
+  joinWallet,
   newTransactionProposal,
-  testCreateWallet
+  signTransaction,
+  testCreateWallet,
+  testNewTransaction
 } from './wallet-test-utils';
 
 describe('/wallets/${walletId}/proposal endpoint', () => {
@@ -86,5 +90,33 @@ describe('/wallets/${walletId}/proposal endpoint', () => {
     const getTransactionsResponse = await getTransactionProposals(server, walletId, undefined, true);
     expect(getTransactionsResponse.statusCode).toBe(StatusCodes.OK);
     expect(getTransactionsResponse.json()).toHaveLength(0);
+  });
+
+  test('should return transactions signed by cosigner', async () => {
+    const walletId = await testCreateWallet(server);
+    const secondCosigner = createCosigner('secondCosigner');
+    const thirdCosigner = createCosigner('thirdCosigner');
+
+    await joinWallet(server, walletId, secondCosigner);
+    await joinWallet(server, walletId, thirdCosigner);
+
+    let transactionId = await testNewTransaction(server, walletId);
+    transactionId = await testNewTransaction(server, walletId);
+    transactionId = await testNewTransaction(server, walletId);
+    await signTransaction(server, transactionId, { issuer: thirdCosigner.pubKey });
+
+    let getTransactionsResponse = await getTransactionProposals(
+      server,
+      walletId,
+      undefined,
+      true,
+      thirdCosigner.pubKey
+    );
+    expect(getTransactionsResponse.statusCode).toBe(StatusCodes.OK);
+    expect(getTransactionsResponse.json()).toHaveLength(2);
+
+    getTransactionsResponse = await getTransactionProposals(server, walletId, undefined, false, thirdCosigner.pubKey);
+    expect(getTransactionsResponse.statusCode).toBe(StatusCodes.OK);
+    expect(getTransactionsResponse.json()).toHaveLength(1);
   });
 });

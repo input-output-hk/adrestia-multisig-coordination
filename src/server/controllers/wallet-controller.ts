@@ -83,8 +83,12 @@ const configure = (walletService: WalletService): WalletController => ({
     const logger: Logger = request.log;
     const from = request.query.from;
     const pending = request.query.onlyPending;
-    logger.info(`[getTransactionProposals] Request received with query params from: ${from} - onlyPending: ${pending}`);
-    return await walletService.getTransactions(request.params.walletId, from, pending);
+    const cosigner = request.query.cosigner;
+    logger.info(
+      `[getTransactionProposals] Request received with query params
+        from: ${from} - onlyPending: ${pending} - cosigner: ${cosigner}`
+    );
+    return await walletService.getTransactions(request.params.walletId, from, pending, cosigner);
   },
   signTransaction: async request => {
     const logger: Logger = request.log;

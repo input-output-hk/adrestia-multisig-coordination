@@ -11,7 +11,7 @@ import {
   HasManyAddAssociationMixin,
   HasManyHasAssociationMixin
 } from 'sequelize';
-import { PubKey, WalletId } from '../models';
+import { PubKey, TransactionState, WalletId } from '../models';
 import Cosigner from './cosigner';
 
 import Signature from './signature';
@@ -53,6 +53,22 @@ class Transaction extends Model<TransactionAttributes, TransactionAttributesCrea
     signatures: Association<Transaction, Signature>;
   };
 
+  public async getState(): Promise<TransactionState> {
+    const countSignatures = await this.countSignatures();
+    const requiredSignatures = (await this.getWallet()).m;
+    return countSignatures >= requiredSignatures ? 'Signed' : 'WaitingForSignatures';
+  }
+
+  public async toDTO(): Promise<Components.Responses.TransactionProposal> {
+    return {
+      transactionId: this.id,
+      transactionState: await this.getState(),
+      createdAt: this.createdAt.toDateString(),
+      updatedAt: this.updatedAt.toDateString(),
+      unsignedTransaction: this.unsignedTransaction
+    };
+  }
+
   public static initialize(sequelize: Sequelize): void {
     this.init(
       {
@@ -75,7 +91,8 @@ class Transaction extends Model<TransactionAttributes, TransactionAttributesCrea
 
   public static defineRelations(): void {
     this.hasMany(Signature, {
-      as: 'signatures'
+      as: 'signatures',
+      foreignKey: 'transactionId'
     });
 
     this.belongsTo(Cosigner, {
@@ -83,7 +100,8 @@ class Transaction extends Model<TransactionAttributes, TransactionAttributesCrea
     });
 
     this.belongsTo(Wallet, {
-      as: 'wallet'
+      as: 'wallet',
+      foreignKey: 'walletId'
     });
   }
 }

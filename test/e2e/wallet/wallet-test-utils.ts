@@ -76,14 +76,16 @@ export const getTransactionProposals = async (
   server: FastifyInstance,
   walletId: string,
   from?: string,
-  onlyPending?: boolean
+  onlyPending?: boolean,
+  cosigner?: string
 ): Promise<HTTPInjectResponse> => {
   let queryParameters = '';
-  if (from || onlyPending) {
+  if (from || onlyPending || cosigner) {
     queryParameters += '?';
   }
   queryParameters += from ? `from=${from}&` : '';
-  queryParameters += onlyPending ? `onlyPending=${onlyPending}` : '';
+  queryParameters += onlyPending ? `onlyPending=${onlyPending}&` : '';
+  queryParameters += cosigner ? `cosigner=${cosigner}` : '';
   return await server.inject({
     method: 'get',
     url: `/wallets/${walletId}/proposal${queryParameters}`

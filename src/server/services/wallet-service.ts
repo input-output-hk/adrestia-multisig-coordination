@@ -1,7 +1,6 @@
 import { WalletRepository } from '../db/wallet-repository';
 import { CoSigner, WalletId, WalletState } from '../models';
 import { v4 as uuidv4 } from 'uuid';
-import { toTransactionResponse, toWalletResponse } from '../utils/data-mapper';
 import { ErrorFactory } from '../utils/errors';
 import Wallet from '../model/wallet';
 import Cosigner from '../model/cosigner';
@@ -38,31 +37,6 @@ export class WalletService {
     return transaction;
   }
 
-  private async getWalletState(wallet: Wallet) {
-    const requiredCosigners = wallet.n;
-    const countCosigners = await wallet.countCosigners();
-    if (countCosigners >= requiredCosigners) {
-      return 'Ready';
-    }
-    if (this.hasExpired(wallet)) {
-      return 'Expired';
-    }
-    return 'WaitingForCosigners';
-  }
-
-  private getTransactionState = async (transaction: Transaction, requiredSignatures: number) =>
-    (await transaction.countSignatures()) >= requiredSignatures ? 'Signed' : 'WaitingForSignatures';
-
-  private async countPendingTransactions(wallet: Wallet) {
-    const transactions: Transaction[] = await wallet.getTransactions();
-    const pendingTransactions = transactions.filter(
-      async transaction => (await transaction.countSignatures()) >= wallet.m
-    );
-    return pendingTransactions.length;
-  }
-
-  private hasExpired = (wallet: Wallet) => false; // todo implement
-
   async createWallet(walletName: string, m: number, n: number, cosigner: CoSigner): Promise<WalletId> {
     const id = uuidv4();
     const initiator = await this.repository.addCosigner(cosigner);
@@ -74,24 +48,15 @@ export class WalletService {
   }
 
   async getWallet(walletId: string): Promise<Components.Schemas.Wallet> {
-    const wallet = await this.findWallet(walletId);
-
-    const cosigners: Components.Schemas.CoSigner[] = (await wallet.getCosigners()).map(cosigner => ({
-      pubKey: cosigner.pubKey,
-      cosignerAlias: cosigner.alias
-    }));
-    const walletState: WalletState = await this.getWalletState(wallet);
-    const pendingTxs = await this.countPendingTransactions(wallet);
-    const initiator = await wallet.getInitiator();
-    return toWalletResponse(wallet, walletState, pendingTxs, initiator.pubKey, cosigners);
+    return await (await this.findWallet(walletId)).toDTO();
   }
 
   async joinWallet(walletId: string, joiningCosigner: CoSigner): Promise<WalletState> {
     const wallet = await this.findWallet(walletId);
 
     const cosigner = await this.repository.addCosigner(joiningCosigner);
-    const cosigners = await wallet.getCosigners();
-    if (await wallet.hasCosigner(cosigner.pubKey)) {
+    const cosigners = wallet.cosigners;
+    if (cosigners.find(walletCosigner => walletCosigner.pubKey === cosigner.pubKey)) {
       throw ErrorFactory.alreadyJoined;
     }
     if (cosigners.length >= wallet.n) {
@@ -99,24 +64,17 @@ export class WalletService {
     }
     await cosigner.addWallet(wallet);
     await wallet.addCosigner(cosigner);
-    return await this.getWalletState(wallet);
+    return await wallet.getState();
   }
 
-  async getTransactions(walletId: string, from?: string, pending?: boolean): Promise<Components.Schemas.Transaction[]> {
-    const wallet = await this.findWallet(walletId);
-
-    const requiredSignatures = wallet.m;
-    const walletTransactions = await wallet.getTransactions();
-    let transactions = await Promise.all(
-      walletTransactions.map(async transaction => {
-        const transactionState = await this.getTransactionState(transaction, requiredSignatures);
-        return toTransactionResponse(transaction, transactionState);
-      })
-    );
-    if (pending) {
-      transactions = transactions.filter(transaction => transaction.transactionState === 'WaitingForSignatures');
-    }
-    return transactions;
+  async getTransactions(
+    walletId: string,
+    from?: string,
+    pending?: boolean,
+    cosigner?: string
+  ): Promise<Components.Schemas.Transaction[]> {
+    const walletTransactions = await this.repository.findTransactions(walletId, from, pending, cosigner);
+    return await Promise.all(walletTransactions.map(async transaction => await transaction.toDTO()));
   }
   async newTransactionProposal(
     walletId: string,
@@ -142,15 +100,14 @@ export class WalletService {
     signature.setCosigner(cosigner);
     signature.setTransaction(transaction);
     transaction.addSignature(signature);
-    const transactionState = await this.getTransactionState(transaction, wallet.m);
-    return toTransactionResponse(transaction, transactionState);
+    return await transaction.toDTO();
   }
 
   async signTransaction(transactionId: string, issuer: string): Promise<Components.Schemas.Transaction> {
     const cosigner = await this.findCosigner(issuer);
     const transaction = await this.findTransaction(transactionId);
-    const transactionWallet = await transaction.getWallet();
-    const transactionState = await this.getTransactionState(transaction, transactionWallet.m);
+    const transactionWallet = transaction.wallet;
+    const transactionState = await transaction.getState();
     if (transactionState === 'Signed') {
       throw ErrorFactory.alreadySigned;
     }
@@ -171,8 +128,7 @@ export class WalletService {
     signature.setTransaction(transaction);
     transaction.addSignature(signature);
 
-    const newState = await this.getTransactionState(transaction, transactionWallet.m);
-    return toTransactionResponse(transaction, newState);
+    return await transaction.toDTO();
   }
 }
 

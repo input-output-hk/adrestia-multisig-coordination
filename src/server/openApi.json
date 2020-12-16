@@ -498,6 +498,14 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "cosigner",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {

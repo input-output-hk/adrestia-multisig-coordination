@@ -41,11 +41,13 @@ class Signature extends Model<SignatureAttributes, SignatureAttributesCreation> 
 
   public static defineRelations(): void {
     this.belongsTo(Cosigner, {
-      as: 'cosigner'
+      as: 'cosigner',
+      foreignKey: 'cosignerPubKey'
     });
 
     this.belongsTo(Transaction, {
-      as: 'transaction'
+      as: 'transaction',
+      foreignKey: 'transactionId'
     });
   }
 }
