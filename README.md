@@ -35,31 +35,24 @@ yarn --offline
 yarn test
 ```
 
-### Start the Service Dependencies
+### Start the Service
 ```
-yarn testnet:services:up
+yarn services:up
 ```
-### Stop the Service Dependencies
+### Stop the Service
 ```
-yarn testnet:services:down
+yarn services:down
 ```
 
-### Start a Local Instance
+### Or Start a Local Instance without using Docker
 
 ```
 yarn dev
 ```
+Note: PostgreSQL instance should be available on localhost and corresponding port.
+### Configure MCS Spec Types
 
-### Configure Rosetta Spec Types
+[MCS openapi spec](./src/server/openApi.json) file is used to:
 
-Rosetta openapi spec file is used to:
-
-- Generate Typescript types to be used in the app
+- Generate Typescript types to be used in the app: `yarn generate-types`
 - To generate validation schemas that are used by Fastify to improve JSON rendering. For further details see [Fastify Documentation](https://www.fastify.io/docs/v2.10.x/Validation-and-Serialization/#serialization).
-
-To do so, the following steps are required:
-
-1. Download the specs from [here](https://github.com/coinbase/rosetta-specifications/blob/master/api.json)
-2. Place them `src/server/openApi.json`
-3. Introduce as many changes as you need (`metadata` fields need to be populated manually to allow Fastify to return the fields)
-4. Execute `yarn generate-rosetta-types`
