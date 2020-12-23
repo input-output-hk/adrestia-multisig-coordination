@@ -11,7 +11,7 @@ export const Errors = {
   WALLET_EXPIRED: { message: 'Wallet Expired', code: 400 },
 
   // Create Wallet
-  INVALID_WALLET_INPUT_M_SMALLER_N: { message: 'm should be smaller than n', code: 400 },
+  INVALID_WALLET_INPUT_M_SMALLER_N: { message: 'm should be equal or smaller than n', code: 400 },
   INVALID_WALLET_INPUT_N: { message: 'n should be greater than 0', code: 400 },
   INVALID_WALLET_INPUT_M: { message: 'm should be greater than 0', code: 400 },
   WALLET_NAME_EMPTY: { message: 'walletName should not be empty', code: 400 },

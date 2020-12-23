@@ -1,8 +1,8 @@
-import { PubKey, TransactionId, WalletId } from '../models';
+import sequelize, { Op, Sequelize, WhereOptions } from 'sequelize';
 import Cosigner from '../model/cosigner';
-import Wallet from '../model/wallet';
 import Transaction from '../model/transaction';
-import sequelize, { Sequelize, Op, WhereOptions } from 'sequelize';
+import Wallet from '../model/wallet';
+import { PubKey, TransactionId, WalletId } from '../models';
 import { ErrorFactory } from '../utils/errors';
 import { PAGE_SIZE } from '../utils/constants';
 
@@ -61,6 +61,11 @@ export const configure = (database: Sequelize): WalletRepository => ({
     if (!wallet) {
       throw ErrorFactory.walletNotFound;
     }
+
+    if (cosigner && !(await wallet.hasCosigner(cosigner))) {
+      throw ErrorFactory.invalidCosigner;
+    }
+
     const requiredSignatures = wallet.m;
 
     const whereClause: WhereOptions[] = [];

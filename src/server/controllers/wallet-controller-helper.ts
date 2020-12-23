@@ -2,7 +2,7 @@ import { Logger } from 'fastify';
 import { CoSigner } from '../models';
 import { ErrorFactory } from '../utils/errors';
 
-const isValidKey = (cosigner: CoSigner) => cosigner.pubKey.length !== 0; // @todo implement
+export const isValidKey = (cosigner: CoSigner): boolean => cosigner.pubKey.length !== 0; // @todo implement
 
 export const withValidWalletInput = async <R>(
   logger: Logger,
@@ -14,7 +14,7 @@ export const withValidWalletInput = async <R>(
     throw ErrorFactory.invalidWalletM;
   }
   if (requestBody.m > requestBody.n) {
-    logger.error('m should be smaller than n');
+    logger.error('m should be equal or smaller than n');
     throw ErrorFactory.invalidWalletMAndN;
   }
   if (requestBody.walletName.length === 0) {

@@ -1,6 +1,7 @@
 import { FastifyRequest, Logger } from 'fastify';
 import { WalletService } from '../services/wallet-service';
-import { withValidWalletInput } from './wallet-controller-helper';
+import { ErrorFactory } from '../utils/errors';
+import { isValidKey, withValidWalletInput } from './wallet-controller-helper';
 
 export interface WalletController {
   createWallet(
@@ -72,11 +73,17 @@ const configure = (walletService: WalletService): WalletController => ({
   joinWallet: async request => {
     const logger: Logger = request.log;
     logger.info(`[joinWallet] Request received with body ${request.body}`);
+    if (!isValidKey(request.body)) {
+      throw ErrorFactory.invalidPubKey;
+    }
     return { walletState: await walletService.joinWallet(request.params.walletId, request.body) };
   },
   newTransactionProposal: async request => {
     const logger: Logger = request.log;
     logger.info(`[newTransactionProposal] Request received with body ${request.body}`);
+    if (request.body.tx.length === 0) {
+      throw ErrorFactory.invalidTranscation;
+    }
     return await walletService.newTransactionProposal(request.params.walletId, request.body);
   },
   getTransactionProposals: async request => {
