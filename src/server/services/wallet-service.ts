@@ -1,16 +1,19 @@
-import { WalletRepository } from '../db/wallet-repository';
-import { CoSigner, WalletId, WalletState } from '../models';
 import { v4 as uuidv4 } from 'uuid';
-import { ErrorFactory } from '../utils/errors';
-import Wallet from '../model/wallet';
+import { WalletRepository } from '../db/wallet-repository';
 import Cosigner from '../model/cosigner';
 import Transaction from '../model/transaction';
+import Wallet from '../model/wallet';
+import { CoSigner, WalletId, WalletState } from '../models';
+import { ErrorFactory } from '../utils/errors';
+import { NotificationService } from './notification-service';
 
 export class WalletService {
   private repository: WalletRepository;
+  private notificationService: NotificationService;
 
-  constructor(repository: WalletRepository) {
+  constructor(notificationService: NotificationService, repository: WalletRepository) {
     this.repository = repository;
+    this.notificationService = notificationService;
   }
 
   private async findWallet(walletId: string): Promise<Wallet> {
@@ -76,6 +79,7 @@ export class WalletService {
     const walletTransactions = await this.repository.findTransactions(walletId, from, pending, cosigner);
     return await Promise.all(walletTransactions.map(async transaction => await transaction.toDTO()));
   }
+
   async newTransactionProposal(
     walletId: string,
     transactionProposal: Components.RequestBodies.TransactionProposal
@@ -100,7 +104,9 @@ export class WalletService {
     signature.setCosigner(cosigner);
     signature.setTransaction(transaction);
     transaction.addSignature(signature);
-    return await transaction.toDTO();
+    const transactionDTO = await transaction.toDTO();
+    this.notificationService.notifyNewProposal(walletId, transactionDTO);
+    return transactionDTO;
   }
 
   async signTransaction(transactionId: string, issuer: string): Promise<Components.Schemas.Transaction> {
@@ -132,6 +138,7 @@ export class WalletService {
   }
 }
 
-const configure = (repository: WalletRepository): WalletService => new WalletService(repository);
+const configure = (notificationService: NotificationService, repository: WalletRepository): WalletService =>
+  new WalletService(notificationService, repository);
 
 export default configure;

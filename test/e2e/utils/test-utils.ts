@@ -1,9 +1,10 @@
 import { FastifyInstance } from 'fastify';
-import * as Repositories from '../../../src/server/db/repositories';
-import * as Services from '../../../src/server/services/services';
-import buildServer from '../../../src/server/server';
 import { Sequelize } from 'sequelize';
+import * as Repositories from '../../../src/server/db/repositories';
 import { initialize } from '../../../src/server/model/init';
+import buildServer from '../../../src/server/server';
+import * as Services from '../../../src/server/services/services';
+import { parseEnvironment } from '../../../src/server/utils/environment-parser';
 
 export const setupDatabase = async (offline: boolean): Promise<Sequelize> => {
   if (offline) {
@@ -19,7 +20,10 @@ export const setupDatabase = async (offline: boolean): Promise<Sequelize> => {
 };
 
 export const setupServer = (database: Sequelize): FastifyInstance => {
-  const repositories = Repositories.configure(database);
-  const services = Services.configure(repositories);
-  return buildServer(services, process.env.LOGGER_LEVEL);
+  const environment = parseEnvironment();
+
+  return buildServer(httpServer => {
+    const repositories = Repositories.configure(environment, database);
+    return Services.configure(httpServer, repositories);
+  }, environment.LOGGER_LEVEL);
 };

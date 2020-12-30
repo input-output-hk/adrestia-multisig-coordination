@@ -1,10 +1,12 @@
+import * as http from 'http';
+import moment from 'moment';
 import { Sequelize } from 'sequelize/types';
-import { WalletService } from '../../../src/server/services/wallet-service';
 import * as Repositories from '../../../src/server/db/repositories';
 import * as Services from '../../../src/server/services/services';
+import { WalletService } from '../../../src/server/services/wallet-service';
+import { parseEnvironment } from '../../../src/server/utils/environment-parser';
 import { setupDatabase } from '../../e2e/utils/test-utils';
 import { defaultCosigner } from '../../e2e/wallet/wallet-test-utils';
-import moment from 'moment';
 
 const setUpdatedAt = async (database: Sequelize, transactionId: string, newDate: Date) => {
   await database.query(
@@ -30,9 +32,9 @@ describe('transactions should be in order by date', () => {
   let walletService: WalletService;
 
   beforeAll(async () => {
+    const environment = parseEnvironment();
     database = await setupDatabase(false);
-    const walletRepository = Repositories.configure(database);
-    walletService = Services.configure(walletRepository).walletService;
+    walletService = Services.configure(new http.Server(), Repositories.configure(environment, database)).walletService;
   });
 
   afterAll(async () => {

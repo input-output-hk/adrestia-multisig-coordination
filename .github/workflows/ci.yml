@@ -25,3 +25,4 @@ jobs:
           LOGGER_LEVEL: debug
           BIND_ADDRESS: 127.0.0.1
           DB_CONNECTION_STRING: postgresql://postgres:notForProduction!@127.0.0.1:5432/mcs
+          PAGE_SIZE: 25

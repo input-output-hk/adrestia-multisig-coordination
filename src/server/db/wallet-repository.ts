@@ -3,10 +3,8 @@ import Cosigner from '../model/cosigner';
 import Transaction from '../model/transaction';
 import Wallet from '../model/wallet';
 import { PubKey, TransactionId, WalletId } from '../models';
+import { Environment } from '../utils/environment-parser';
 import { ErrorFactory } from '../utils/errors';
-import { PAGE_SIZE } from '../utils/constants';
-
-const pageSize = PAGE_SIZE;
 
 const countSignatures = `(
   SELECT COUNT(*)
@@ -31,7 +29,7 @@ export interface WalletRepository {
   findTransaction(id: TransactionId): Promise<Transaction | null>;
 }
 
-export const configure = (database: Sequelize): WalletRepository => ({
+export const configure = (environment: Environment, database: Sequelize): WalletRepository => ({
   addCosigner: async cosigner => {
     const [databaseCosigner, created] = await Cosigner.findOrCreate({
       where: {
@@ -88,7 +86,7 @@ export const configure = (database: Sequelize): WalletRepository => ({
       where: {
         [Op.and]: whereClause
       },
-      limit: pageSize
+      limit: environment.PAGE_SIZE
     });
   }
 });

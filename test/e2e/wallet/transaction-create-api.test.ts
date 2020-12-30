@@ -1,4 +1,3 @@
-/* eslint-disable no-magic-numbers */
 import { FastifyInstance } from 'fastify';
 import StatusCodes from 'http-status-codes';
 import { Sequelize } from 'sequelize';

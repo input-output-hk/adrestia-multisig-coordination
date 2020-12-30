@@ -29,6 +29,7 @@ services:
       - DB_CONNECTION_STRING=postgresql://postgres:notForProduction!@postgres:5432/cexplorer
       - LOGGER_LEVEL=debug
       - PORT=8080
+      - PAGE_SIZE=25
     command: bash -c "yarn --offline && yarn dev"
     expose:
       - 8080

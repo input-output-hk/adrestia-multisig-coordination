@@ -1,7 +1,7 @@
 import { FastifyInstance, HTTPInjectResponse } from 'fastify';
-import { CoSigner, TransactionId, WalletId } from '../../../src/server/models';
 import StatusCodes from 'http-status-codes';
 import { v4 as uuidv4 } from 'uuid';
+import { CoSigner, TransactionId, WalletId } from '../../../src/server/models';
 
 export const defaultCosigner: CoSigner = {
   cosignerAlias: 'someAlias',

@@ -1,10 +1,10 @@
-import fastify from 'fastify';
+import fastify, { FastifyInstance } from 'fastify';
 import fastifyBlipp from 'fastify-blipp';
 import metricsPlugin from 'fastify-metrics';
 import openapiGlue from 'fastify-openapi-glue';
-import { Services } from './services/services';
-import * as Controllers from './controllers/controllers';
 import { IncomingMessage, Server, ServerResponse } from 'http';
+import * as Controllers from './controllers/controllers';
+import { Services } from './services/services';
 
 interface ExtraParams {
   networkId: string;
@@ -19,14 +19,14 @@ interface ExtraParams {
  * @param logger true if logger should be enabled, false otherwise
  */
 const buildServer = (
-  services: Services,
+  servicesFactory: (httpServer: Server) => Services,
   logLevel: string
-): fastify.FastifyInstance<Server, IncomingMessage, ServerResponse> => {
+): FastifyInstance<Server, IncomingMessage, ServerResponse> => {
   const server = fastify({ logger: { level: logLevel } });
   server.register(fastifyBlipp);
   server.register(openapiGlue, {
     specification: `${__dirname}/openApi.json`,
-    service: Controllers.configure(services),
+    service: Controllers.configure(servicesFactory(server.server)),
     noAdditional: true
   });
   server.register(metricsPlugin, { endpoint: '/metrics' });

@@ -7,6 +7,7 @@ variables:
   PORT: 8080
   BIND_ADDRESS: 0.0.0.0
   DB_CONNECTION_STRING: 'postgresql://postgres:password@db:5432/mcs'
+  PAGE_SIZE: 25
   LOGGER_LEVEL: 'fatal'
   SKIP_TEST_PG_CONTAINER: 'true'
   # https://hub.docker.com/_/postgres

@@ -1,21 +1,21 @@
 /* eslint-disable no-console */
+import { Sequelize } from 'sequelize/types';
+import createPool from './db/connection';
+import * as Repositories from './db/repositories';
 import { initialize } from './model/init';
 import buildServer from './server';
-import * as Services from './services/services';
-import * as Repositories from './db/repositories';
+import { configure, Services } from './services/services';
 import { Environment, parseEnvironment } from './utils/environment-parser';
-import createPool from './db/connection';
-import { Sequelize } from 'sequelize/types';
 
 const start = async (environment: Environment, databasePool: Sequelize) => {
   let server;
   try {
-    const repositories = Repositories.configure(databasePool);
-    const services = Services.configure(repositories);
-
-    server = buildServer(services, environment.LOGGER_LEVEL);
-    server.addHook('onClose', async () => await databasePool.close());
+    server = buildServer((httpServer): Services => {
+      const repositories = Repositories.configure(environment, databasePool);
+      return configure(httpServer, repositories);
+    }, environment.LOGGER_LEVEL).addHook('onClose', async () => await databasePool.close());
     await server.listen(environment.PORT, environment.BIND_ADDRESS);
+
     server.blipp();
   } catch (error) {
     server?.log.error(error);
