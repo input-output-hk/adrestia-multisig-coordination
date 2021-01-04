@@ -47,6 +47,7 @@ export class WalletService {
     await wallet.setInitiator(initiator);
     await wallet.addCosigner(initiator);
     await initiator.addWallet(wallet);
+    await this.notificationService.subscribeCosigner(cosigner.pubKey, wallet.id);
     return wallet.id;
   }
 
@@ -67,6 +68,7 @@ export class WalletService {
     }
     await cosigner.addWallet(wallet);
     await wallet.addCosigner(cosigner);
+    await this.notificationService.subscribeCosigner(cosigner.pubKey, wallet.id);
     return await wallet.getState();
   }
 

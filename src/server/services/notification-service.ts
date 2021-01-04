@@ -1,7 +1,6 @@
 import * as http from 'http';
 import { Server, Socket } from 'socket.io';
 import { WalletRepository } from '../db/wallet-repository';
-import Wallet from '../model/wallet';
 interface JoinMessage {
   pubKey: string;
 }
@@ -55,18 +54,39 @@ export class NotificationService {
         this.emit(socket, 'join_message', 'Couldn`t find cosigner with given PubKey');
         return;
       }
-
-      const subscribedTo: string[] = this.subscribeTo(socket, await cosigner.getWallets());
-      this.emit(socket, 'join_message', this.resolveMessage(subscribedTo));
+      socket.join(`pubKeys:${pubKey}`);
+      const wallets = (await cosigner.getWallets()).map(wallet => wallet.id);
+      this.subscribeTo(socket, wallets);
     });
     return [joinMessageEvent];
   }
 
-  private subscribeTo(socket: Socket, wallets: Wallet[]): string[] {
-    return wallets.map(wallet => {
-      socket.join(`wallets:${wallet.id}`);
-      return wallet.id;
-    });
+  public notifyNewProposal(walletId: string, transaction: Components.Schemas.Transaction): void {
+    this.emit(this.io.to(`wallets:${walletId}`), 'new_proposal', { walletId, transaction });
+  }
+
+  /**
+   * Find any socket connected and subscribed with pubKey and update subscription with new wallet
+   *
+   * @param pubKey used to find sockets
+   * @param walletId to subscribe
+   */
+  public async subscribeCosigner(pubKey: string, walletId: string): Promise<void> {
+    const sockets = await this.findSocketsFor(pubKey);
+    sockets.forEach(socket => this.subscribeTo(socket, [walletId]));
+  }
+
+  private async findSocketsFor(pubKey: string): Promise<Socket[]> {
+    const room = new Set([`pubKeys:${pubKey}`]);
+    const socketIds = await this.io.sockets.adapter.sockets(room);
+    return [...socketIds]
+      .map(socketId => this.io.sockets.sockets.get(socketId))
+      .filter((s): s is Socket => s !== undefined);
+  }
+
+  private subscribeTo(socket: Socket, wallets: string[]): void {
+    wallets.forEach(walletId => socket.join(`wallets:${walletId}`));
+    this.emit(socket, 'join_message', this.resolveMessage(wallets));
   }
 
   private resolveMessage(subscribedWallets: string[]): JoinResponse {
@@ -74,13 +94,9 @@ export class NotificationService {
       return 'No wallets to subscribe';
     }
     return {
-      message: 'Will receive notifications from subscribed wallets',
+      message: 'Subscribed to wallets',
       wallets: subscribedWallets
     };
-  }
-
-  public async notifyNewProposal(walletId: string, transaction: Components.Schemas.Transaction): Promise<void> {
-    this.emit(this.io.to(`wallets:${walletId}`), 'new_proposal', { walletId, transaction });
   }
 }
 

@@ -168,4 +168,39 @@ describe('/notifications endpoint and subscribe to events', () => {
       tx: 'someOtherTransaction'
     });
   });
+
+  test('should subscribe to created/joined wallets automatically', async done => {
+    const firstCosigner = defaultCosigner;
+    const secondCosigner = createCosigner('secondCosigner');
+    const thirdCosigner = createCosigner('thirdCosigner');
+    const requiredSignatures = 3;
+    const requiredCosigners = 3;
+    let secondWalletId = '';
+    const firstWalletId = await walletService.createWallet(
+      'firstWallet',
+      requiredSignatures,
+      requiredCosigners,
+      firstCosigner
+    );
+
+    await walletService.joinWallet(firstWalletId, secondCosigner);
+    await walletService.joinWallet(firstWalletId, thirdCosigner);
+
+    socket.on('join_message', (message: JoinResponse) => {
+      expect(message).toHaveProperty('wallets');
+      const subscription: WalletSubscription = <WalletSubscription>message;
+      if (subscription.wallets.includes(secondWalletId)) {
+        done();
+      }
+    });
+
+    socket.emit('join_message', { pubKey: secondCosigner.pubKey });
+
+    secondWalletId = await walletService.createWallet(
+      'secondWallet',
+      requiredSignatures,
+      requiredCosigners,
+      secondCosigner
+    );
+  });
 });

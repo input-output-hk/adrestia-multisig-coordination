@@ -1,17 +1,16 @@
 import {
   Association,
-  HasManyAddAssociationMixin,
-  HasManyCountAssociationsMixin,
-  HasManyCreateAssociationMixin,
-  HasManyGetAssociationsMixin,
-  HasManyHasAssociationMixin,
-  Sequelize,
+  BelongsToManyAddAssociationMixin,
+  BelongsToManyCountAssociationsMixin,
+  BelongsToManyCreateAssociationMixin,
+  BelongsToManyGetAssociationsMixin,
+  BelongsToManyHasAssociationMixin,
+  DataTypes,
   Model,
   Optional,
-  DataTypes
+  Sequelize
 } from 'sequelize';
 import { WalletId } from '../models';
-
 import Wallet from './wallet';
 
 interface CosignerAttributes {
@@ -29,11 +28,11 @@ class Cosigner extends Model<CosignerAttributes, CosignerAttributesCreation> imp
 
   public readonly wallets!: Wallet[];
 
-  public getWallets!: HasManyGetAssociationsMixin<Wallet>;
-  public addWallet!: HasManyAddAssociationMixin<Wallet, WalletId>;
-  public hasWallet!: HasManyHasAssociationMixin<Wallet, WalletId>;
-  public countWallet!: HasManyCountAssociationsMixin;
-  public createWallet!: HasManyCreateAssociationMixin<Wallet>;
+  public getWallets!: BelongsToManyGetAssociationsMixin<Wallet>;
+  public addWallet!: BelongsToManyAddAssociationMixin<Wallet, WalletId>;
+  public hasWallet!: BelongsToManyHasAssociationMixin<Wallet, WalletId>;
+  public countWallet!: BelongsToManyCountAssociationsMixin;
+  public createWallet!: BelongsToManyCreateAssociationMixin<Wallet>;
 
   public static associations: {
     wallets: Association<Cosigner, Wallet>;
@@ -60,8 +59,8 @@ class Cosigner extends Model<CosignerAttributes, CosignerAttributesCreation> imp
   }
 
   public static defineRelations(): void {
-    this.hasMany(Wallet, {
-      as: 'wallets'
+    this.belongsToMany(Wallet, {
+      through: 'walletCosigners'
     });
   }
 }
