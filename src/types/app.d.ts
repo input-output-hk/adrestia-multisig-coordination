@@ -6,5 +6,8 @@ declare namespace NodeJS {
     LOGGER_LEVEL: string;
     LOGGER_ENABLED?: string;
     PAGE_SIZE?: number;
+    CRON_EXPRESSION: string;
+    EXPIRATION_TIME: number;
+    PRUNING_TIME: number;
   }
 }

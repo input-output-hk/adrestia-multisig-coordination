@@ -11,7 +11,8 @@
     "dev": "ts-node-dev --respawn --transpileOnly -r dotenv/config --watch ./src ./src/server/index.ts",
     "lint": "eslint \"./test/**/*.ts\" \"./src/**/*.ts\"",
     "services:up": "docker-compose up --build",
-    "services:down": "docker-compose down"
+    "services:down": "docker-compose down",
+    "prune-db": "ts-node --transpile-only -r dotenv/config ./src/server/db/prune.ts"
   },
   "lint-staged": {
     "src/**/*.{js,ts}": [
@@ -39,6 +40,7 @@
     "@types/dockerode": "2.5.34",
     "@types/jest": "26.0.3",
     "@types/node": "14.0.14",
+    "@types/node-cron": "^2.0.3",
     "@types/pg": "7.14.4",
     "@types/pino": "6.3.0",
     "@types/sequelize": "4.28.9",
@@ -77,6 +79,7 @@
     "fastify-metrics": "5.0.1",
     "fastify-openapi-glue": "1.6.0",
     "moment": "2.27.0",
+    "node-cron": "2.0.3",
     "pg": "8.3.0",
     "sequelize": "6.3.5",
     "socket.io": "3.0.4",

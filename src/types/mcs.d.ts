@@ -36,12 +36,12 @@ declare namespace Components {
     export interface Transaction {
       transactionId: TransactionId;
       unsignedTransaction: UnsignedTransaction;
-      transactionState: 'WaitingForSignatures' | 'Signed';
+      transactionState: TransactionState;
       createdAt: string; // date
       updatedAt: string; // date
     }
     export type TransactionId = string;
-    export type TransactionState = 'WaitingForSignatures' | 'Signed';
+    export type TransactionState = 'WaitingForSignatures' | 'Signed' | 'Expired';
     export type UnsignedTransaction = string;
     export interface Wallet {
       id: WalletId;

@@ -27,6 +27,8 @@ interface WalletAttributes {
 
 type WalletAttributesCreation = WalletAttributes;
 
+const expirationTime = process.env.EXPIRATION_TIME;
+
 class Wallet extends Model<WalletAttributes, WalletAttributesCreation> implements WalletAttributes {
   public id!: string;
   public name!: string;
@@ -59,19 +61,19 @@ class Wallet extends Model<WalletAttributes, WalletAttributesCreation> implement
     initiator: Association<Wallet, Cosigner>;
   };
 
-  public hasExpired(): boolean {
-    // TODO implement
-    return false;
+  /* eslint-disable no-magic-numbers */
+  private isExpired(): boolean {
+    const expirationDate = new Date(this.createdAt);
+    // use utc time for adding minutes ('x * 60 * 60 * 1000' to convert minutes to milliseconds)
+    expirationDate.setTime(expirationDate.getTime() + expirationTime * 60 * 1000);
+    const currentDate = new Date();
+    return expirationDate.getTime() <= currentDate.getTime();
   }
 
   public async getState(): Promise<WalletState> {
     const countCosigners: number = (await this.getCosigners()).length;
-    if (countCosigners >= this.n) {
-      return 'Ready';
-    }
-    if (this.hasExpired()) {
-      return 'Expired';
-    }
+    if (countCosigners >= this.n) return 'Ready';
+    if (this.isExpired()) return 'Expired';
     return 'WaitingForCosigners';
   }
 
@@ -95,7 +97,7 @@ class Wallet extends Model<WalletAttributes, WalletAttributesCreation> implement
       m: this.m,
       n: this.n,
       initiator: initiator.pubKey,
-      createdAt: this.createdAt.toDateString(),
+      createdAt: this.createdAt.toUTCString(),
       pendingTxs,
       state: walletState,
       cosigners
@@ -133,10 +135,11 @@ class Wallet extends Model<WalletAttributes, WalletAttributesCreation> implement
   public static defineRelations(): void {
     this.hasMany(Transaction, {
       as: 'transactions',
-      foreignKey: 'walletId'
+      foreignKey: 'walletId',
+      onDelete: 'CASCADE'
     });
 
-    this.belongsToMany(Cosigner, { as: 'cosigners', through: 'walletCosigners' });
+    this.belongsToMany(Cosigner, { as: 'cosigners', through: 'walletCosigners', onDelete: 'CASCADE' });
 
     this.belongsTo(Cosigner, {
       as: 'initiator'

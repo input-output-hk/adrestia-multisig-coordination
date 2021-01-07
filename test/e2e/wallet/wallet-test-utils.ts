@@ -1,7 +1,10 @@
 import { FastifyInstance, HTTPInjectResponse } from 'fastify';
 import StatusCodes from 'http-status-codes';
+import moment from 'moment';
+import { Sequelize } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
 import { CoSigner, TransactionId, WalletId } from '../../../src/server/models';
+import { setCreatedAt } from '../utils/test-utils';
 
 export const defaultCosigner: CoSigner = {
   cosignerAlias: 'someAlias',
@@ -105,6 +108,38 @@ export const testCreateWallet = async (server: FastifyInstance): Promise<WalletI
   expect(response.json()).toHaveProperty('walletId');
 
   return response.json().walletId;
+};
+
+export const testCreateReadyWallet = async (server: FastifyInstance): Promise<WalletId> => {
+  const response = await createWallet(server);
+
+  expect(response.statusCode).toEqual(StatusCodes.OK);
+  expect(response.json()).toHaveProperty('walletId');
+  const walletId = response.json().walletId;
+
+  await joinWallet(server, walletId, createCosigner('secondCosigner'));
+  await joinWallet(server, walletId, createCosigner('thirdCosigner'));
+
+  return walletId;
+};
+
+export const testCreateExpiredWallet = async (
+  server: FastifyInstance,
+  database: Sequelize,
+  expirationTime: number
+): Promise<WalletId> => {
+  const walletId = await testCreateWallet(server);
+  const simulatedDate = moment()
+    .subtract(expirationTime, 'minutes')
+    .subtract(expirationTime, 'seconds')
+    .toDate();
+  await setCreatedAt(database, 'wallets', walletId, simulatedDate);
+  const expiredWallet = await getWallet(server, walletId);
+  expect(expiredWallet.statusCode).toEqual(StatusCodes.OK);
+  expect(expiredWallet.json()).toHaveProperty('state');
+  expect(expiredWallet.json().state).toBe('Expired');
+
+  return walletId;
 };
 
 export const testNewTransaction = async (server: FastifyInstance, walletId: WalletId): Promise<TransactionId> => {

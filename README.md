@@ -21,9 +21,15 @@ LOGGER_LEVEL="debug"
 # App address to bind to
 BIND_ADDRESS=0.0.0.0
 # PostgresDB connection string
-DB_CONNECTION_STRING="postgresql://postgres:mysecretpassword@127.0.0.1:5432/test"
+DB_CONNECTION_STRING="postgresql://postgres:mysecretpassword@127.0.0.1:5432/postgres"
 # Page Size
 PAGE_SIZE=25
+# Cron Time
+CRON_EXPRESSION="0 0 * * *" # Daily
+# Expiration Time for transactions and wallets (in minutes)
+EXPIRATION_TIME=2
+# Pruning Time for transactions and wallets (in minutes)
+PRUNING_TIME=2
 ```
 
 ### Install packages from offline cache
@@ -59,6 +65,14 @@ yarn dev
 ```
 
 Note: PostgreSQL instance should be available on localhost and corresponding port.
+
+### Schedule Data Pruning
+
+Schedules data pruning tasks based on CRON_EXPRESSION env. variable
+
+```
+yarn prune-db
+```
 
 ### Configure MCS Spec Types
 

@@ -7,6 +7,9 @@ export interface Environment {
   DB_CONNECTION_STRING: string;
   LOGGER_LEVEL: string;
   PAGE_SIZE: number;
+  CRON_EXPRESSION: string;
+  EXPIRATION_TIME: number;
+  PRUNING_TIME: number;
 }
 
 export const parseEnvironment = (): Environment => {
@@ -15,7 +18,10 @@ export const parseEnvironment = (): Environment => {
     BIND_ADDRESS: host(),
     DB_CONNECTION_STRING: str(),
     LOGGER_LEVEL: str(),
-    PAGE_SIZE: num()
+    PAGE_SIZE: num(),
+    CRON_EXPRESSION: str(),
+    EXPIRATION_TIME: num(),
+    PRUNING_TIME: num()
   });
 
   return { ...environment };

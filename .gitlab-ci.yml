@@ -8,12 +8,16 @@ variables:
   BIND_ADDRESS: 0.0.0.0
   DB_CONNECTION_STRING: 'postgresql://postgres:password@db:5432/mcs'
   PAGE_SIZE: 25
+  CRON_EXPRESSION: "0 0 * * *"
+  EXPIRATION_TIME: 2
+  PRUNING_TIME: 2
   LOGGER_LEVEL: 'fatal'
   SKIP_TEST_PG_CONTAINER: 'true'
   # https://hub.docker.com/_/postgres
   POSTGRES_PASSWORD: "password"
   POSTGRES_USER: "postgres"
   POSTGRES_DB: "mcs"
+  CRON_DOCKER_IMAGE: "CRON"
 
 stages:
   - test
@@ -43,5 +47,7 @@ package-backend:
     - docker login -u gitlabci -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker build -t $DOCKER_IMAGE_NAME:$CI_COMMIT_SHORT_SHA .
     - docker push $DOCKER_IMAGE_NAME:$CI_COMMIT_SHORT_SHA 
+    - docker build -f Dockerfile-cron -t ${DOCKER_IMAGE_NAME}-cron:$CI_COMMIT_SHORT_SHA .
+    - docker push ${DOCKER_IMAGE_NAME}-cron:$CI_COMMIT_SHORT_SHA
   except:
     - schedules

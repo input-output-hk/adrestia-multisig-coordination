@@ -5,23 +5,8 @@ import * as Repositories from '../../../src/server/db/repositories';
 import * as Services from '../../../src/server/services/services';
 import { WalletService } from '../../../src/server/services/wallet-service';
 import { parseEnvironment } from '../../../src/server/utils/environment-parser';
-import { setupDatabase } from '../../e2e/utils/test-utils';
-import { defaultCosigner } from '../../e2e/wallet/wallet-test-utils';
-
-const setUpdatedAt = async (database: Sequelize, transactionId: string, newDate: Date) => {
-  await database.query(
-    `
-    UPDATE transactions
-    SET "updatedAt" = :date
-    WHERE id = :id`,
-    {
-      replacements: {
-        date: newDate,
-        id: transactionId
-      }
-    }
-  );
-};
+import { setupDatabase, setUpdatedAt } from '../../e2e/utils/test-utils';
+import { createCosigner, defaultCosigner } from '../../e2e/wallet/wallet-test-utils';
 
 const requiredSignatures = 2;
 const requiredCosigners = 3;
@@ -52,6 +37,8 @@ describe('transactions should be in order by date', () => {
       requiredCosigners,
       defaultCosigner
     );
+    await walletService.joinWallet(walletId, createCosigner('secondCosigner'));
+    await walletService.joinWallet(walletId, createCosigner('thirdCosigner'));
     const firstTransaction = await walletService.newTransactionProposal(walletId, {
       tx: 'firstTransacation',
       issuer: defaultCosigner.pubKey
@@ -65,7 +52,7 @@ describe('transactions should be in order by date', () => {
     const sevenDaysAgo = moment()
       .subtract(daysToSubtract, 'd')
       .toDate();
-    await setUpdatedAt(database, secondTransaction.transactionId, sevenDaysAgo);
+    await setUpdatedAt(database, 'transactions', secondTransaction.transactionId, sevenDaysAgo);
 
     const expectdAmountTransactions = 2;
     const allTransactions = await walletService.getTransactions(walletId);
@@ -81,6 +68,8 @@ describe('transactions should be in order by date', () => {
       requiredCosigners,
       defaultCosigner
     );
+    await walletService.joinWallet(walletId, createCosigner('secondCosigner'));
+    await walletService.joinWallet(walletId, createCosigner('thirdCosigner'));
     const firstTransaction = await walletService.newTransactionProposal(walletId, {
       tx: 'firstTransaction',
       issuer: defaultCosigner.pubKey
@@ -95,7 +84,7 @@ describe('transactions should be in order by date', () => {
       .subtract(daysToSubtract, 'd')
       .toDate();
 
-    await setUpdatedAt(database, secondTransaction.transactionId, sevenDaysAgo);
+    await setUpdatedAt(database, 'transactions', secondTransaction.transactionId, sevenDaysAgo);
 
     const one = 1;
     const oneDayAgo = moment()

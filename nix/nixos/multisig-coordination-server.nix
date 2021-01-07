@@ -55,6 +55,21 @@ in {
         type = lib.types.str;
         default = "mcs";
       };
+
+      cronExpression = lib.mkOption {
+        type = lib.types.str;
+        default = "*/30 * * * *";
+      };
+
+      expirationTime = lib.mkOption {
+        type = lib.types.int;
+        default = 30;
+      };
+
+      pruningTime = lib.mkOption {
+        type = lib.types.int;
+        default = 30;
+      };
     };
   };
   config = let
@@ -73,6 +88,9 @@ in {
         BIND_ADDRESS             = cfg.bindAddress;
         DB_CONNECTION_STRING     = cfg.dbConnectionString;
         PAGE_SIZE                = toString cfg.pageSize;
+        CRON_EXPRESSION          = cfg.cronExpression;
+        EXPIRATION_TIME          = cfg.expirationTime;
+        PRUNING_TIME             = cfg.pruningTime;
       };
       path = with pkgs; [ netcat curl postgresql jq glibc.bin patchelf ];
       script = ''

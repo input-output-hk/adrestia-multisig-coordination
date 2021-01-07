@@ -8,7 +8,6 @@ export const initialize = async (sequelize: Sequelize): Promise<void> => {
   const models = [Cosigner, Wallet, Transaction, Signature];
   models.forEach(model => model.initialize(sequelize));
   models.forEach(model => model.defineRelations());
-  /* TODO If force is true will drop all tables and create them again.
-   We should include other way to fix tables when there are changes. */
-  await sequelize.sync({ force: true });
+  /* TODO Until migrations are implemented, alter = true will alter tables to fit model */
+  await sequelize.sync({ alter: true, logging: false });
 };

@@ -11,6 +11,7 @@ import {
   joinWallet,
   newTransactionProposal,
   signTransaction,
+  testCreateReadyWallet,
   testCreateWallet,
   testNewTransaction
 } from './wallet-test-utils';
@@ -32,7 +33,7 @@ describe('/wallets/${walletId}/proposal endpoint', () => {
   });
 
   test('should return transaction state', async () => {
-    const walletId = await testCreateWallet(server);
+    const walletId = await testCreateReadyWallet(server);
     const transactionResponse = await newTransactionProposal(server, walletId);
 
     expect(transactionResponse.statusCode).toBe(StatusCodes.OK);
@@ -47,7 +48,7 @@ describe('/wallets/${walletId}/proposal endpoint', () => {
   });
 
   test('should return transactions order by update time', async () => {
-    const walletId = await testCreateWallet(server);
+    const walletId = await testCreateReadyWallet(server);
     const transactionResponse = await newTransactionProposal(server, walletId);
 
     expect(transactionResponse.statusCode).toBe(StatusCodes.OK);
@@ -56,7 +57,7 @@ describe('/wallets/${walletId}/proposal endpoint', () => {
   });
 
   test('should return transactions in pending state', async () => {
-    const walletId = await testCreateWallet(server);
+    const walletId = await testCreateReadyWallet(server);
 
     const transactionResponse = await newTransactionProposal(server, walletId);
 
@@ -79,6 +80,10 @@ describe('/wallets/${walletId}/proposal endpoint', () => {
     expect(response.statusCode).toEqual(StatusCodes.OK);
     expect(response.json()).toHaveProperty('walletId');
     const walletId = response.json().walletId;
+
+    await joinWallet(server, walletId, createCosigner('secondCosigner'));
+    await joinWallet(server, walletId, createCosigner('thirdCosigner'));
+    // now is ready to new transaction proposals
 
     const transactionResponse = await newTransactionProposal(server, walletId);
 

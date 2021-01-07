@@ -57,15 +57,14 @@ export class WalletService {
 
   async joinWallet(walletId: string, joiningCosigner: CoSigner): Promise<WalletState> {
     const wallet = await this.findWallet(walletId);
+    const walletState = await wallet.getState();
+    if (walletState === 'Expired') throw ErrorFactory.walletExpired;
 
     const cosigner = await this.repository.addCosigner(joiningCosigner);
     const cosigners = wallet.cosigners;
-    if (cosigners.find(walletCosigner => walletCosigner.pubKey === cosigner.pubKey)) {
-      throw ErrorFactory.alreadyJoined;
-    }
-    if (cosigners.length >= wallet.n) {
-      throw ErrorFactory.walletIsFull;
-    }
+    if (cosigners.find(walletCosigner => walletCosigner.pubKey === cosigner.pubKey)) throw ErrorFactory.alreadyJoined;
+    if (cosigners.length >= wallet.n) throw ErrorFactory.walletIsFull;
+
     await cosigner.addWallet(wallet);
     await wallet.addCosigner(cosigner);
     await this.notificationService.subscribeCosigner(cosigner.pubKey, wallet.id);
@@ -87,12 +86,12 @@ export class WalletService {
     transactionProposal: Components.RequestBodies.TransactionProposal
   ): Promise<Components.Schemas.Transaction> {
     const wallet = await this.findWallet(walletId);
+    const walletState = await wallet.getState();
+    if (walletState === 'WaitingForCosigners') throw ErrorFactory.walletNotReady;
+    if (walletState === 'Expired') throw ErrorFactory.walletExpired;
+    if (!(await wallet.hasCosigner(transactionProposal.issuer))) throw ErrorFactory.invalidCosigner;
 
-    if (!(await wallet.hasCosigner(transactionProposal.issuer))) {
-      throw ErrorFactory.invalidCosigner;
-    }
     const cosigner = await this.findCosigner(transactionProposal.issuer);
-
     const transactionId = uuidv4();
     const transaction = await wallet.createTransaction({
       id: transactionId,
@@ -116,9 +115,9 @@ export class WalletService {
     const transaction = await this.findTransaction(transactionId);
     const transactionWallet = transaction.wallet;
     const transactionState = await transaction.getState();
-    if (transactionState === 'Signed') {
-      throw ErrorFactory.alreadySigned;
-    }
+    if (transactionState === 'Signed') throw ErrorFactory.alreadySigned;
+    if (transactionState === 'Expired') throw ErrorFactory.transactionExpired;
+
     const isCosigner = await transactionWallet.hasCosigner(cosigner.pubKey);
     if (!isCosigner) {
       throw ErrorFactory.invalidCosigner;

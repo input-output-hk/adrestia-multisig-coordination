@@ -110,7 +110,7 @@ describe('/notifications endpoint and subscribe to events', () => {
       requiredCosigners,
       defaultCosigner
     );
-
+    await walletService.joinWallet(walletId, createCosigner('secondCosigner'));
     await walletService.joinWallet(walletId, cosigner);
 
     socket.emit('join_message', { pubKey: cosigner.pubKey });
@@ -130,6 +130,7 @@ describe('/notifications endpoint and subscribe to events', () => {
     const requiredCosigners = 3;
     let firstWalletId;
     let secondWalletId;
+
     await walletService.joinWallet(
       (firstWalletId = await walletService.createWallet(
         'someWallet',
@@ -139,6 +140,7 @@ describe('/notifications endpoint and subscribe to events', () => {
       )),
       cosigner
     );
+    await walletService.joinWallet(firstWalletId, createCosigner('thirdCosigner'));
     await walletService.joinWallet(
       (secondWalletId = await walletService.createWallet(
         'someWallet',
@@ -148,6 +150,7 @@ describe('/notifications endpoint and subscribe to events', () => {
       )),
       cosigner
     );
+    await walletService.joinWallet(secondWalletId, createCosigner('thirdCosigner'));
 
     socket.emit('join_message', { pubKey: cosigner.pubKey });
     let times = 0;

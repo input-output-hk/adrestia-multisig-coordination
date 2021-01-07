@@ -3,6 +3,7 @@ import { FastifyInstance } from 'fastify';
 import StatusCodes from 'http-status-codes';
 import { Sequelize } from 'sequelize';
 import { CoSigner, WalletId } from '../../../src/server/models';
+import { parseEnvironment } from '../../../src/server/utils/environment-parser';
 import { setupDatabase, setupServer } from '../utils/test-utils';
 import {
   createCosigner,
@@ -10,15 +11,18 @@ import {
   defaultCosigner,
   getWallet,
   joinWallet,
+  testCreateExpiredWallet,
   testCreateWallet
 } from './wallet-test-utils';
 
 describe('/wallets/{walletId}/join endpoint', () => {
   let database: Sequelize;
   let server: FastifyInstance;
+  let expirationTime: number;
   beforeAll(async () => {
     database = await setupDatabase(false);
     server = setupServer(database);
+    expirationTime = parseEnvironment().EXPIRATION_TIME;
   });
 
   afterAll(async () => {
@@ -119,5 +123,12 @@ describe('/wallets/{walletId}/join endpoint', () => {
     walletState = await joinWallet(server, walletId, createCosigner('thirdCosigner'));
 
     expect(walletState.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+  });
+
+  test('should return error when trying to join an expired wallet', async () => {
+    const walletId = await testCreateExpiredWallet(server, database, expirationTime);
+
+    const joinResponse = await joinWallet(server, walletId, createCosigner('secondCosigner'));
+    expect(joinResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
   });
 });

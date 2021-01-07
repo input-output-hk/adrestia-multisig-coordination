@@ -47,7 +47,8 @@ class Signature extends Model<SignatureAttributes, SignatureAttributesCreation> 
 
     this.belongsTo(Transaction, {
       as: 'transaction',
-      foreignKey: 'transactionId'
+      foreignKey: 'transactionId',
+      onDelete: 'CASCADE'
     });
   }
 }

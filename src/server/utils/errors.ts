@@ -31,6 +31,7 @@ export const Errors = {
   ALREADY_SIGNED: { message: 'Transaction was already signed', code: 400 },
   ALREADY_SIGNED_BY: { message: 'Already Signed', code: 400 },
   INVALID_TRANSACTION: { message: 'Invalid Transaction', code: 400 },
+  TRANSACTION_EXPIRED: { message: 'Transaction expired', code: 400 },
   TRANSACTION_NOT_FOUND: { message: 'Transaction Not Found', code: 404 }
 };
 
@@ -56,6 +57,7 @@ const invalidCosigner = buildApiError(Errors.INVALID_COSIGNER);
 const alreadySignedBy = buildApiError(Errors.ALREADY_SIGNED_BY);
 const alreadySigned = buildApiError(Errors.ALREADY_SIGNED);
 const invalidTranscation = buildApiError(Errors.INVALID_TRANSACTION);
+const transactionExpired = buildApiError(Errors.TRANSACTION_EXPIRED);
 const transactionNotFound = buildApiError(Errors.TRANSACTION_NOT_FOUND);
 
 export const ErrorFactory = {
@@ -79,5 +81,6 @@ export const ErrorFactory = {
   alreadySignedBy,
   alreadySigned,
   invalidTranscation,
+  transactionExpired,
   transactionNotFound
 };

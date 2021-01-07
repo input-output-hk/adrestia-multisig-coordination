@@ -30,6 +30,9 @@ services:
       - LOGGER_LEVEL=debug
       - PORT=8080
       - PAGE_SIZE=25
+      - CRON_EXPRESSION="0 0 * * *"
+      - EXPIRATION_TIME=2
+      - PRUNING_TIME=2
     command: bash -c "yarn --offline && yarn dev"
     expose:
       - 8080

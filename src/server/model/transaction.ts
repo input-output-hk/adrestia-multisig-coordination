@@ -1,19 +1,18 @@
 import {
-  DataTypes,
-  Sequelize,
-  Model,
-  HasManyGetAssociationsMixin,
-  HasManyCountAssociationsMixin,
-  HasManyCreateAssociationMixin,
   Association,
   BelongsToGetAssociationMixin,
   BelongsToSetAssociationMixin,
+  DataTypes,
   HasManyAddAssociationMixin,
-  HasManyHasAssociationMixin
+  HasManyCountAssociationsMixin,
+  HasManyCreateAssociationMixin,
+  HasManyGetAssociationsMixin,
+  HasManyHasAssociationMixin,
+  Model,
+  Sequelize
 } from 'sequelize';
 import { PubKey, TransactionState, WalletId } from '../models';
 import Cosigner from './cosigner';
-
 import Signature from './signature';
 import Wallet from './wallet';
 
@@ -23,6 +22,8 @@ interface TransactionAttributes {
 }
 
 type TransactionAttributesCreation = TransactionAttributes;
+
+const expirationTime = process.env.EXPIRATION_TIME;
 
 class Transaction extends Model<TransactionAttributes, TransactionAttributesCreation> implements TransactionAttributes {
   public id!: string;
@@ -53,18 +54,29 @@ class Transaction extends Model<TransactionAttributes, TransactionAttributesCrea
     signatures: Association<Transaction, Signature>;
   };
 
+  /* eslint-disable no-magic-numbers */
+  private isExpired(): boolean {
+    const expirationDate = new Date(this.updatedAt);
+    // use utc time for adding minutes ('x * 60 * 1000' to convert minutes to milliseconds)
+    expirationDate.setTime(this.updatedAt.getTime() + expirationTime * 60 * 1000);
+    const currentDate = new Date(Date.now());
+    return expirationDate <= currentDate;
+  }
+
   public async getState(): Promise<TransactionState> {
     const countSignatures = await this.countSignatures();
     const requiredSignatures = (await this.getWallet()).m;
-    return countSignatures >= requiredSignatures ? 'Signed' : 'WaitingForSignatures';
+    if (countSignatures >= requiredSignatures) return 'Signed';
+    if (this.isExpired()) return 'Expired';
+    return 'WaitingForSignatures';
   }
 
   public async toDTO(): Promise<Components.Responses.TransactionProposal> {
     return {
       transactionId: this.id,
       transactionState: await this.getState(),
-      createdAt: this.createdAt.toDateString(),
-      updatedAt: this.updatedAt.toDateString(),
+      createdAt: this.createdAt.toUTCString(),
+      updatedAt: this.updatedAt.toUTCString(),
       unsignedTransaction: this.unsignedTransaction
     };
   }
@@ -92,7 +104,8 @@ class Transaction extends Model<TransactionAttributes, TransactionAttributesCrea
   public static defineRelations(): void {
     this.hasMany(Signature, {
       as: 'signatures',
-      foreignKey: 'transactionId'
+      foreignKey: 'transactionId',
+      onDelete: 'CASCADE'
     });
 
     this.belongsTo(Cosigner, {
