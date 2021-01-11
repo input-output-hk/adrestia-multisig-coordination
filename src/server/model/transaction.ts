@@ -75,8 +75,8 @@ class Transaction extends Model<TransactionAttributes, TransactionAttributesCrea
     return {
       transactionId: this.id,
       transactionState: await this.getState(),
-      createdAt: this.createdAt.toUTCString(),
-      updatedAt: this.updatedAt.toUTCString(),
+      createdAt: this.createdAt.toISOString(),
+      updatedAt: this.updatedAt.toISOString(),
       unsignedTransaction: this.unsignedTransaction
     };
   }

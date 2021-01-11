@@ -15,9 +15,11 @@ const daysToSubtract = 7;
 describe('transactions should be in order by date', () => {
   let database: Sequelize;
   let walletService: WalletService;
+  let pageSize: number;
 
   beforeAll(async () => {
     const environment = parseEnvironment();
+    pageSize = environment.PAGE_SIZE;
     database = await setupDatabase(false);
     walletService = Services.configure(new http.Server(), Repositories.configure(environment, database)).walletService;
   });
@@ -94,5 +96,31 @@ describe('transactions should be in order by date', () => {
     const allTransactions = await walletService.getTransactions(walletId, oneDayAgo.toDateString());
     expect(allTransactions).toHaveLength(1);
     expect(allTransactions[0].transactionId).toBe(firstTransaction.transactionId);
+  });
+
+  test('transactions can be paginated using from parameter', async () => {
+    const walletId = await walletService.createWallet(
+      'someName',
+      requiredSignatures,
+      requiredCosigners,
+      defaultCosigner
+    );
+    await walletService.joinWallet(walletId, createCosigner('secondCosigner'));
+    await walletService.joinWallet(walletId, createCosigner('thirdCosigner'));
+
+    const transactions: Components.Schemas.Transaction[] = [];
+    const transactionsToCreate = 30;
+    for (let i = 0; i < transactionsToCreate; i++) {
+      transactions.push(
+        await walletService.newTransactionProposal(walletId, {
+          tx: 'someTransaction',
+          issuer: defaultCosigner.pubKey
+        })
+      );
+    }
+
+    const from = transactions[pageSize].updatedAt;
+    const lastTransactions = await walletService.getTransactions(walletId, from);
+    expect(lastTransactions.length).toBe(transactionsToCreate - pageSize);
   });
 });

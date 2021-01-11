@@ -37,8 +37,8 @@ declare namespace Components {
       transactionId: TransactionId;
       unsignedTransaction: UnsignedTransaction;
       transactionState: TransactionState;
-      createdAt: string; // date
-      updatedAt: string; // date
+      createdAt: string; // date-time
+      updatedAt: string; // date-time
     }
     export type TransactionId = string;
     export type TransactionState = 'WaitingForSignatures' | 'Signed' | 'Expired';
@@ -51,7 +51,7 @@ declare namespace Components {
       state: WalletState;
       cosigners: CoSigner[];
       pendingTxs: number;
-      createdAt: string; // date
+      createdAt: string; // date-time
       initiator: PubKey;
     }
     export interface WalletCreation {
@@ -76,7 +76,7 @@ declare namespace Paths {
   namespace GetTransactionProposals {
     namespace Parameters {
       export type Cosigner = string;
-      export type From = string; // date
+      export type From = string; // date-time
       export type OnlyPending = boolean;
       export type WalletId = string;
     }
@@ -84,7 +84,7 @@ declare namespace Paths {
       walletId: Parameters.WalletId;
     }
     export interface QueryParameters {
-      from?: Parameters.From /* date */;
+      from?: Parameters.From /* date-time */;
       onlyPending?: Parameters.OnlyPending;
       cosigner?: Parameters.Cosigner;
     }
