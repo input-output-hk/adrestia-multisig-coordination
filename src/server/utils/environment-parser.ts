@@ -1,4 +1,4 @@
-import envalid, { host, num, str } from 'envalid';
+import envalid, { bool, host, num, str } from 'envalid';
 /* eslint-disable no-console */
 
 export interface Environment {
@@ -10,6 +10,7 @@ export interface Environment {
   CRON_EXPRESSION: string;
   EXPIRATION_TIME: number;
   PRUNING_TIME: number;
+  ENABLE_SYNC: boolean;
 }
 
 export const parseEnvironment = (): Environment => {
@@ -21,7 +22,8 @@ export const parseEnvironment = (): Environment => {
     PAGE_SIZE: num(),
     CRON_EXPRESSION: str(),
     EXPIRATION_TIME: num(),
-    PRUNING_TIME: num()
+    PRUNING_TIME: num(),
+    ENABLE_SYNC: bool({ default: false })
   });
 
   return { ...environment };

@@ -12,10 +12,11 @@ export const setupDatabase = async (offline: boolean): Promise<Sequelize> => {
     poolMock.query = jest.fn();
     return poolMock;
   }
-  const databaseInstance = new Sequelize(process.env.DB_CONNECTION_STRING, {
+  const environment = parseEnvironment();
+  const databaseInstance = new Sequelize(environment.DB_CONNECTION_STRING, {
     logging: false
   });
-  await initialize(databaseInstance);
+  await initialize(databaseInstance, environment.ENABLE_SYNC);
   return databaseInstance;
 };
 

@@ -29,3 +29,4 @@ jobs:
           CRON_EXPRESSION: "*/2 * * * *"
           EXPIRATION_TIME: 2
           PRUNING_TIME: 2
+          ENABLE_SYNC: true

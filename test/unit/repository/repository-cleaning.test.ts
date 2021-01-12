@@ -17,11 +17,13 @@ describe('DB cleaning mechanism', () => {
   let walletService: WalletService;
   let expirationTime: number; // in minutes
   let pruningTime: number; // in minutes
+  let enableSync: boolean;
 
   beforeAll(async () => {
     const environment = parseEnvironment();
     expirationTime = environment.EXPIRATION_TIME;
     pruningTime = environment.PRUNING_TIME;
+    enableSync = environment.ENABLE_SYNC;
     database = await setupDatabase(false);
     walletService = setupServices(environment, database)(new http.Server()).walletService;
     databaseCleaner = databaseCleaner_(environment);
@@ -31,7 +33,7 @@ describe('DB cleaning mechanism', () => {
   });
 
   beforeEach(async () => {
-    await database.sync({ force: true });
+    if (enableSync) await database.sync({ force: true });
   });
 
   const givenAnExpiredTransaction = async (): Promise<string> => {

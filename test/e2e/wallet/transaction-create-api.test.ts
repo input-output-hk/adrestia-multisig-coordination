@@ -15,10 +15,14 @@ describe('/wallets/${walletId}/proposal endpoint', () => {
   let database: Sequelize;
   let server: FastifyInstance;
   let expirationTime: number;
+  let enableSync: boolean;
+
   beforeAll(async () => {
     database = await setupDatabase(false);
     server = setupServer(database);
-    expirationTime = parseEnvironment().EXPIRATION_TIME;
+    const environment = parseEnvironment();
+    enableSync = environment.ENABLE_SYNC;
+    expirationTime = environment.EXPIRATION_TIME;
   });
 
   afterAll(async () => {
@@ -26,7 +30,7 @@ describe('/wallets/${walletId}/proposal endpoint', () => {
   });
 
   beforeEach(async () => {
-    await database.sync({ force: true });
+    if (enableSync) await database.sync({ force: true });
   });
 
   test('should return transaction', async () => {

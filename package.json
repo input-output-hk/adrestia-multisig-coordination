@@ -12,7 +12,8 @@
     "lint": "eslint \"./test/**/*.ts\" \"./src/**/*.ts\"",
     "services:up": "docker-compose up --build",
     "services:down": "docker-compose down",
-    "prune-db": "ts-node --transpile-only -r dotenv/config ./src/server/db/prune.ts"
+    "prune-db": "ts-node --transpile-only -r dotenv/config ./src/server/db/prune.ts",
+    "db-migrate": "sequelize-cli db:migrate"
   },
   "lint-staged": {
     "src/**/*.{js,ts}": [
@@ -66,6 +67,7 @@
     "pg-connection-string": "2.3.0",
     "pg-hstore": "2.3.3",
     "prettier": "1.19.1",
+    "sequelize-cli": "^6.2.0",
     "socket.io-client": "^3.0.4",
     "ts-jest": "26.1.1",
     "ts-node-dev": "1.0.0-pre.50",

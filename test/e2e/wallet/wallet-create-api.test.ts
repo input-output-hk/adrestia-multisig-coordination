@@ -2,6 +2,7 @@
 import { FastifyInstance } from 'fastify';
 import StatusCodes from 'http-status-codes';
 import { Sequelize } from 'sequelize/types';
+import { parseEnvironment } from '../../../src/server/utils/environment-parser';
 import { Errors } from '../../../src/server/utils/errors';
 import { setupDatabase, setupServer } from '../utils/test-utils';
 import { createWallet, defaultCosigner } from './wallet-test-utils';
@@ -9,9 +10,11 @@ import { createWallet, defaultCosigner } from './wallet-test-utils';
 describe('/wallets endpoint', () => {
   let database: Sequelize;
   let server: FastifyInstance;
+  let enableSync: boolean;
   beforeAll(async () => {
     database = await setupDatabase(false);
     server = setupServer(database);
+    enableSync = parseEnvironment().ENABLE_SYNC;
   });
 
   afterAll(async () => {
@@ -19,7 +22,7 @@ describe('/wallets endpoint', () => {
   });
 
   beforeEach(async () => {
-    await database.sync({ force: true });
+    if (enableSync) await database.sync({ force: true });
   });
 
   test('should return the wallet id', async () => {

@@ -70,6 +70,11 @@ in {
         type = lib.types.int;
         default = 30;
       };
+
+      enableSync = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+      }
     };
   };
   config = let
@@ -88,6 +93,7 @@ in {
         BIND_ADDRESS             = cfg.bindAddress;
         DB_CONNECTION_STRING     = cfg.dbConnectionString;
         PAGE_SIZE                = toString cfg.pageSize;
+        ENABLE_SYNC              = cfg.enableSync;
         CRON_EXPRESSION          = cfg.cronExpression;
         EXPIRATION_TIME          = cfg.expirationTime;
         PRUNING_TIME             = cfg.pruningTime;

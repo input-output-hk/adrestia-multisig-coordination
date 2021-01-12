@@ -16,6 +16,7 @@ describe('transactions should be in order by date', () => {
   let database: Sequelize;
   let walletService: WalletService;
   let pageSize: number;
+  let enableSync: boolean;
 
   beforeAll(async () => {
     const environment = parseEnvironment();
@@ -29,7 +30,7 @@ describe('transactions should be in order by date', () => {
   });
 
   beforeEach(async () => {
-    await database.sync({ force: true });
+    if (enableSync) await database.sync({ force: true });
   });
 
   test('return transactions in order by date (ASC)', async () => {

@@ -2,6 +2,7 @@
 import { FastifyInstance } from 'fastify';
 import StatusCodes from 'http-status-codes';
 import { Sequelize } from 'sequelize';
+import { parseEnvironment } from '../../../src/server/utils/environment-parser';
 import { setupDatabase, setupServer } from '../utils/test-utils';
 import {
   createCosigner,
@@ -19,9 +20,11 @@ import {
 describe('/wallets/${walletId}/proposal endpoint', () => {
   let database: Sequelize;
   let server: FastifyInstance;
+  let enableSync: boolean;
   beforeAll(async () => {
     database = await setupDatabase(false);
     server = setupServer(database);
+    enableSync = parseEnvironment().ENABLE_SYNC;
   });
 
   afterAll(async () => {
@@ -29,7 +32,7 @@ describe('/wallets/${walletId}/proposal endpoint', () => {
   });
 
   beforeEach(async () => {
-    await database.sync({ force: true });
+    if (enableSync) await database.sync({ force: true });
   });
 
   test('should return transaction state', async () => {

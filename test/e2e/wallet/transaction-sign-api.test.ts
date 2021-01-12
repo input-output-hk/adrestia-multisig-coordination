@@ -20,10 +20,13 @@ describe('/transactions/${transactionId}/sign endpoint', () => {
   let database: Sequelize;
   let server: FastifyInstance;
   let expirationTime: number;
+  let enableSync: boolean;
   beforeAll(async () => {
     database = await setupDatabase(false);
     server = setupServer(database);
-    expirationTime = parseEnvironment().EXPIRATION_TIME;
+    const environment = parseEnvironment();
+
+    expirationTime = environment.EXPIRATION_TIME;
   });
 
   afterAll(async () => {
@@ -31,7 +34,7 @@ describe('/transactions/${transactionId}/sign endpoint', () => {
   });
 
   beforeEach(async () => {
-    await database.sync({ force: true });
+    if (enableSync) await database.sync({ force: true });
   });
 
   test('should return error if transaction doesnt exist', async () => {

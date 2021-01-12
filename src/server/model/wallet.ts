@@ -97,7 +97,7 @@ class Wallet extends Model<WalletAttributes, WalletAttributesCreation> implement
       m: this.m,
       n: this.n,
       initiator: initiator.pubKey,
-      createdAt: this.createdAt.toUTCString(),
+      createdAt: this.createdAt.toISOString(),
       pendingTxs,
       state: walletState,
       cosigners

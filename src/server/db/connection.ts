@@ -11,7 +11,7 @@ const createPool = (connectionString: string): Sequelize => new Sequelize(connec
 
 const connectDB = async (environment: Environment): Promise<Sequelize> => {
   const databasePool = createPool(environment.DB_CONNECTION_STRING);
-  await initialize(databasePool);
+  await initialize(databasePool, environment.ENABLE_SYNC);
   return databasePool;
 };
 

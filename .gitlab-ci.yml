@@ -8,6 +8,7 @@ variables:
   BIND_ADDRESS: 0.0.0.0
   DB_CONNECTION_STRING: 'postgresql://postgres:password@db:5432/mcs'
   PAGE_SIZE: 25
+  ENABLE_SYNC: 'true'
   CRON_EXPRESSION: "0 0 * * *"
   EXPIRATION_TIME: 2
   PRUNING_TIME: 2

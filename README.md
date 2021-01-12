@@ -30,6 +30,8 @@ CRON_EXPRESSION="0 0 * * *" # Daily
 EXPIRATION_TIME=2
 # Pruning Time for transactions and wallets (in minutes)
 PRUNING_TIME=2
+# Sync DB
+ENABLE_SYNC="false"
 ```
 
 ### Install packages from offline cache
@@ -73,6 +75,24 @@ Schedules data pruning tasks based on CRON_EXPRESSION env. variable
 ```
 yarn prune-db
 ```
+
+### DB Migrations
+
+To execute database migrations use:
+
+```
+yarn db-migrate
+```
+
+This will use [database.json](.config/database.json) to determine which environment to migrate.
+
+Otherwise you can specify instance url:
+
+```
+yarn db-migrate --url postgres://postgres:mysecretpassword@127.0.0.1:5432/test
+```
+
+Note that url scheme is postgres, not potgresql in this case
 
 ### Configure MCS Spec Types
 

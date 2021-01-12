@@ -9,5 +9,6 @@ declare namespace NodeJS {
     CRON_EXPRESSION: string;
     EXPIRATION_TIME: number;
     PRUNING_TIME: number;
+    ENABLE_SYNC: boolean;
   }
 }
