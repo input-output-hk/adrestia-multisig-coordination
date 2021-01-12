@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.1.0](https://github.com/input-output-hk/multisig-coordination-server/compare/v0.0.2...v0.1.0) (2021-01-12)
+
+
+### Features
+
+* add db cleaning mechanism and script to schedule it ([1312422](https://github.com/input-output-hk/multisig-coordination-server/commit/1312422259c7058621cbdaadfb5c46cf20ce7aa6))
+
+
+### Bug Fixes
+
+* use ISO format in transaction responses and add time to 'from' parameter in order to make pagination posible ([9ceb61e](https://github.com/input-output-hk/multisig-coordination-server/commit/9ceb61ebc0464df0e18dcc6cecb0c3fbf4a903fa))
+
 ### [0.0.2](https://github.com/input-output-hk/multisig-coordination-server/compare/v0.0.1...v0.0.2) (2021-01-05)
 
 
