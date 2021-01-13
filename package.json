@@ -1,6 +1,6 @@
 {
   "name": "multisig-coordination-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Multisig Coordination API server specification implementation",
   "main": "index.js",
   "scripts": {

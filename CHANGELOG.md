@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.1](https://github.com/input-output-hk/multisig-coordination-server/compare/v0.1.0...v0.1.1) (2021-01-13)
+
+
+### Features
+
+* add db migration files and cli ([21e5b26](https://github.com/input-output-hk/multisig-coordination-server/commit/21e5b2660b31983fbff9dd18a59cade01e8930ce))
+
 ## [0.1.0](https://github.com/input-output-hk/multisig-coordination-server/compare/v0.0.2...v0.1.0) (2021-01-12)
 
 
