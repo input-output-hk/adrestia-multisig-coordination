@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.2](https://github.com/input-output-hk/multisig-coordination-server/compare/v0.1.1...v0.1.2) (2021-01-14)
+
+
+### Bug Fixes
+
+* add missing parameter according to API spec ([6c8ae0b](https://github.com/input-output-hk/multisig-coordination-server/commit/6c8ae0bac2154ad1c09528cad68495219119a397))
+* pending txs based on transacation state instead of signatures count ([0e8fd8a](https://github.com/input-output-hk/multisig-coordination-server/commit/0e8fd8ae973fa1d0c92f93dd8a3f1f327e57efac))
+* validate empty parameters on open api spec ([a796222](https://github.com/input-output-hk/multisig-coordination-server/commit/a796222425c1b4842540422a761c573dfe9206df))
+
 ### [0.1.1](https://github.com/input-output-hk/multisig-coordination-server/compare/v0.1.0...v0.1.1) (2021-01-13)
 
 
