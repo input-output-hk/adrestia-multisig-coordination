@@ -78,8 +78,9 @@ class Wallet extends Model<WalletAttributes, WalletAttributesCreation> implement
   }
 
   public async countPendingTransactions(): Promise<number> {
-    const transactions: Transaction[] = await this.getTransactions({ include: ['signatures'] });
-    const pendingTransactions = transactions.filter(async transaction => transaction.signatures.length >= this.m);
+    const transactions: Transaction[] = await this.getTransactions();
+    const states = await Promise.all(transactions.map(async transaction => await transaction.getState()));
+    const pendingTransactions = transactions.filter((_transaction, index) => states[index] === 'WaitingForSignatures');
     return pendingTransactions.length;
   }
 
