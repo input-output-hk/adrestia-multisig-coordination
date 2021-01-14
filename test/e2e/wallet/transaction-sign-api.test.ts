@@ -43,7 +43,10 @@ describe('/transactions/${transactionId}/sign endpoint', () => {
     const newCosigner = createCosigner('newCosigner');
     await joinWallet(server, walletId, newCosigner);
     await testNewTransaction(server, walletId);
-    const signResponse = await signTransaction(server, 'someInvalidTransactionId', { issuer: newCosigner.pubKey });
+    const signResponse = await signTransaction(server, 'someInvalidTransactionId', {
+      issuer: newCosigner.pubKey,
+      witness: 'someWitness'
+    });
     expect(signResponse.statusCode).toBe(StatusCodes.NOT_FOUND);
   });
 
@@ -53,7 +56,10 @@ describe('/transactions/${transactionId}/sign endpoint', () => {
 
     const newCosigner = createCosigner('newCosigner');
 
-    const signResponse = await signTransaction(server, transactionId, { issuer: newCosigner.pubKey });
+    const signResponse = await signTransaction(server, transactionId, {
+      issuer: newCosigner.pubKey,
+      witness: 'someWitness'
+    });
     expect(signResponse.statusCode).toBe(StatusCodes.NOT_FOUND);
   });
 
@@ -70,7 +76,10 @@ describe('/transactions/${transactionId}/sign endpoint', () => {
     });
     expect(otherWallet.statusCode).toBe(StatusCodes.OK);
 
-    const signResponse = await signTransaction(server, transactionId, { issuer: otherCosigner.pubKey });
+    const signResponse = await signTransaction(server, transactionId, {
+      issuer: otherCosigner.pubKey,
+      witness: 'someWitness'
+    });
     expect(signResponse.statusCode).toBe(StatusCodes.BAD_REQUEST);
   });
 
@@ -78,7 +87,10 @@ describe('/transactions/${transactionId}/sign endpoint', () => {
     const walletId = await testCreateReadyWallet(server);
     const transactionId = await testNewTransaction(server, walletId);
 
-    const signResponse = await signTransaction(server, transactionId, { issuer: defaultCosigner.pubKey });
+    const signResponse = await signTransaction(server, transactionId, {
+      issuer: defaultCosigner.pubKey,
+      witness: 'someWitness'
+    });
     expect(signResponse.statusCode).toBe(StatusCodes.BAD_REQUEST);
   });
 
@@ -89,7 +101,10 @@ describe('/transactions/${transactionId}/sign endpoint', () => {
     await joinWallet(server, walletId, newCosigner);
     const transactionId = await testNewTransaction(server, walletId);
 
-    const signResponse = await signTransaction(server, transactionId, { issuer: newCosigner.pubKey });
+    const signResponse = await signTransaction(server, transactionId, {
+      issuer: newCosigner.pubKey,
+      witness: 'someWitness'
+    });
     expect(signResponse.statusCode).toBe(StatusCodes.OK);
     expect(signResponse.json()).toHaveProperty('transactionState');
     expect(signResponse.json().transactionState).toBe('Signed');
@@ -105,7 +120,10 @@ describe('/transactions/${transactionId}/sign endpoint', () => {
     setUpdatedAt(database, 'transactions', transactionId, simulatedDate);
     const newCosigner = createCosigner('newCosigner');
     await joinWallet(server, walletId, newCosigner);
-    const signResponse = await signTransaction(server, transactionId, { issuer: newCosigner.pubKey });
+    const signResponse = await signTransaction(server, transactionId, {
+      issuer: newCosigner.pubKey,
+      witness: 'someWitness'
+    });
     expect(signResponse.statusCode).toBe(StatusCodes.BAD_REQUEST);
   });
 });

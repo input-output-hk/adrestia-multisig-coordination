@@ -6,6 +6,10 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         primaryKey: true
       },
+      witness: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: false
+      },
       transactionId: {
         type: Sequelize.DataTypes.STRING,
         allowNull: false,

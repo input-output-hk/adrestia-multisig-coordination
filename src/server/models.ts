@@ -8,3 +8,4 @@ export type TransactionId = Components.Schemas.TransactionId;
 export type TransactionState = Components.Schemas.TransactionState;
 export type UnsignedTransaction = Components.Schemas.UnsignedTransaction;
 export type CoSigner = Components.Schemas.CoSigner;
+export type Witness = Components.Schemas.Witness;

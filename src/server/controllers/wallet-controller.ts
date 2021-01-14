@@ -81,7 +81,7 @@ const configure = (walletService: WalletService): WalletController => ({
   newTransactionProposal: async request => {
     const logger: Logger = request.log;
     logger.info(`[newTransactionProposal] Request received with body ${request.body}`);
-    if (request.body.tx.length === 0) {
+    if (request.body.tx.length === 0 || request.body.witness.length === 0) {
       throw ErrorFactory.invalidTranscation;
     }
     return await walletService.newTransactionProposal(request.params.walletId, request.body);
@@ -103,8 +103,9 @@ const configure = (walletService: WalletService): WalletController => ({
 
     const transactionId = request.params.txId;
     const issuer = request.body.issuer;
+    const witness = request.body.witness;
 
-    return await walletService.signTransaction(transactionId, issuer);
+    return await walletService.signTransaction(transactionId, issuer, witness);
   }
 });
 

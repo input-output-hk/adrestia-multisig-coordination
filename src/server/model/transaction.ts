@@ -72,12 +72,14 @@ class Transaction extends Model<TransactionAttributes, TransactionAttributesCrea
   }
 
   public async toDTO(): Promise<Components.Responses.TransactionProposal> {
+    const signatures = await this.getSignatures();
     return {
       transactionId: this.id,
       transactionState: await this.getState(),
       createdAt: this.createdAt.toISOString(),
       updatedAt: this.updatedAt.toISOString(),
-      unsignedTransaction: this.unsignedTransaction
+      unsignedTransaction: this.unsignedTransaction,
+      witnesses: signatures.map(signature => signature.witness)
     };
   }
 

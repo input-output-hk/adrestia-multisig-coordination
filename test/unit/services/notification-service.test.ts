@@ -121,7 +121,11 @@ describe('/notifications endpoint and subscribe to events', () => {
       done();
     });
 
-    await walletService.newTransactionProposal(walletId, { issuer: defaultCosigner.pubKey, tx: someTransaction });
+    await walletService.newTransactionProposal(walletId, {
+      issuer: defaultCosigner.pubKey,
+      tx: someTransaction,
+      witness: 'someWitness'
+    });
   });
 
   test('should receive notifications from subscribed wallets', async done => {
@@ -164,11 +168,13 @@ describe('/notifications endpoint and subscribe to events', () => {
     });
     await walletService.newTransactionProposal(firstWalletId, {
       issuer: defaultCosigner.pubKey,
-      tx: 'someTransaction'
+      tx: 'someTransaction',
+      witness: 'someWitness'
     });
     await walletService.newTransactionProposal(secondWalletId, {
       issuer: defaultCosigner.pubKey,
-      tx: 'someOtherTransaction'
+      tx: 'someOtherTransaction',
+      witness: 'someWitness'
     });
   });
 

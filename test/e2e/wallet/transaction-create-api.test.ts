@@ -46,7 +46,8 @@ describe('/wallets/${walletId}/proposal endpoint', () => {
     const walletId = await testCreateReadyWallet(server);
     const transactionResponse = await newTransactionProposal(server, walletId, {
       tx: 'someTransaction',
-      issuer: 'unknown'
+      issuer: 'unknown',
+      witness: 'someWitness'
     });
 
     expect(transactionResponse.statusCode).toBe(StatusCodes.BAD_REQUEST);

@@ -1,16 +1,18 @@
 import { BelongsToGetAssociationMixin, BelongsToSetAssociationMixin, DataTypes, Model, Sequelize } from 'sequelize';
-import { PubKey, TransactionId } from '../models';
+import { PubKey, TransactionId, Witness } from '../models';
 import Cosigner from './cosigner';
 import Transaction from './transaction';
 
 interface SignatureAttributes {
   id: string;
+  witness: Witness;
 }
 
 type SignatureAttributesCreation = SignatureAttributes;
 
 class Signature extends Model<SignatureAttributes, SignatureAttributesCreation> implements SignatureAttributes {
   public id!: string;
+  public witness!: Witness;
 
   public readonly createdAt!: Date | null;
 
@@ -29,6 +31,10 @@ class Signature extends Model<SignatureAttributes, SignatureAttributesCreation> 
         id: {
           type: DataTypes.STRING,
           primaryKey: true
+        },
+        witness: {
+          type: DataTypes.STRING,
+          allowNull: false
         }
       },
       {

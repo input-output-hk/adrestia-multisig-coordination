@@ -111,7 +111,7 @@ describe('/wallets/${walletId}/proposal endpoint', () => {
     let transactionId = await testNewTransaction(server, walletId);
     transactionId = await testNewTransaction(server, walletId);
     transactionId = await testNewTransaction(server, walletId);
-    await signTransaction(server, transactionId, { issuer: thirdCosigner.pubKey });
+    await signTransaction(server, transactionId, { issuer: thirdCosigner.pubKey, witness: 'someWitness' });
 
     let getTransactionsResponse = await getTransactionProposals(
       server,
@@ -126,5 +126,25 @@ describe('/wallets/${walletId}/proposal endpoint', () => {
     getTransactionsResponse = await getTransactionProposals(server, walletId, undefined, false, thirdCosigner.pubKey);
     expect(getTransactionsResponse.statusCode).toBe(StatusCodes.OK);
     expect(getTransactionsResponse.json()).toHaveLength(1);
+  });
+
+  test('should return witnesses from signatures', async () => {
+    const walletId = await testCreateWallet(server);
+    const secondCosigner = createCosigner('secondCosigner');
+    await joinWallet(server, walletId, secondCosigner);
+    await joinWallet(server, walletId, createCosigner('thirdCosigner'));
+    const transactionId = await testNewTransaction(server, walletId);
+    const signResponse = await signTransaction(server, transactionId, {
+      issuer: secondCosigner.pubKey,
+      witness: 'someOtherWitness'
+    });
+    expect(signResponse.statusCode).toBe(StatusCodes.OK);
+    const getTransactionsResponse = await getTransactionProposals(server, walletId);
+    expect(getTransactionsResponse.json()).toHaveLength(1);
+    const firstTransaction: Components.Schemas.Transaction = getTransactionsResponse.json()[0];
+    expect(firstTransaction).toHaveProperty('witnesses');
+    expect(firstTransaction.witnesses).toHaveLength(2);
+    expect(firstTransaction.witnesses).toContain('someOtherWitness');
+    expect(firstTransaction.witnesses).toContain('someWitness');
   });
 });

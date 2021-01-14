@@ -4,10 +4,12 @@ declare namespace Components {
     export type JoinWallet = Schemas.CoSigner;
     export interface SignProposal {
       issuer: Schemas.PubKey;
+      witness: Schemas.Witness;
     }
     export interface TransactionProposal {
       issuer: Schemas.PubKey;
       tx: Schemas.UnsignedTransaction;
+      witness: Schemas.Witness;
     }
   }
   namespace Responses {
@@ -39,6 +41,7 @@ declare namespace Components {
       transactionState: TransactionState;
       createdAt: string; // date-time
       updatedAt: string; // date-time
+      witnesses: Witness[];
     }
     export type TransactionId = string;
     export type TransactionState = 'WaitingForSignatures' | 'Signed' | 'Expired';
@@ -62,6 +65,7 @@ declare namespace Components {
     }
     export type WalletId = string;
     export type WalletState = 'WaitingForCosigners' | 'Ready' | 'Expired';
+    export type Witness = string;
   }
 }
 declare namespace Paths {

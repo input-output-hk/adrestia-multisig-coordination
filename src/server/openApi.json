@@ -98,12 +98,15 @@
           }
         }
       },
+      "Witness": {
+        "type": "string"
+      },
       "UnsignedTransaction": {
         "type": "string"
       },
       "Transaction": {
         "type": "object",
-        "required": ["transactionId", "unsignedTransaction", "transactionState", "createdAt", "updatedAt"],
+        "required": ["transactionId", "unsignedTransaction", "transactionState", "createdAt", "updatedAt", "witnesses"],
         "properties": {
           "transactionId": {
             "$ref": "#/components/schemas/TransactionId"
@@ -121,6 +124,12 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "witnesses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Witness"
+            }
           }
         }
       },
@@ -167,13 +176,16 @@
           "application/json": {
             "schema": {
               "type": "object",
-              "required": ["issuer", "tx"],
+              "required": ["issuer", "tx", "witness"],
               "properties": {
                 "issuer": {
                   "$ref": "#/components/schemas/PubKey"
                 },
                 "tx": {
                   "$ref": "#/components/schemas/UnsignedTransaction"
+                },
+                "witness": {
+                  "$ref": "#/components/schemas/Witness"
                 }
               }
             }
@@ -187,10 +199,13 @@
           "application/json": {
             "schema": {
               "type": "object",
-              "required": ["issuer"],
+              "required": ["issuer", "witness"],
               "properties": {
                 "issuer": {
                   "$ref": "#/components/schemas/PubKey"
+                },
+                "witness": {
+                  "$ref": "#/components/schemas/Witness"
                 }
               }
             }

@@ -20,11 +20,13 @@ export const defaultWallet: Components.RequestBodies.CreateWallet = {
 
 export const defaultTransactionProposal: Components.RequestBodies.TransactionProposal = {
   tx: 'someTransaction',
-  issuer: defaultCosigner.pubKey
+  issuer: defaultCosigner.pubKey,
+  witness: 'someWitness'
 };
 
 export const defaultSignProposal: Components.RequestBodies.SignProposal = {
-  issuer: defaultCosigner.pubKey
+  issuer: defaultCosigner.pubKey,
+  witness: 'someWitness'
 };
 
 export const createCosigner = (alias: string): CoSigner => ({

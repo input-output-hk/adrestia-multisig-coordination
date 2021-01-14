@@ -100,7 +100,8 @@ export class WalletService {
     transaction.setIssuer(cosigner);
     transaction.setWallet(wallet);
     const signature = await transaction.createSignature({
-      id: uuidv4()
+      id: uuidv4(),
+      witness: transactionProposal.witness
     });
     signature.setCosigner(cosigner);
     signature.setTransaction(transaction);
@@ -110,7 +111,11 @@ export class WalletService {
     return transactionDTO;
   }
 
-  async signTransaction(transactionId: string, issuer: string): Promise<Components.Schemas.Transaction> {
+  async signTransaction(
+    transactionId: string,
+    issuer: string,
+    witness: string
+  ): Promise<Components.Schemas.Transaction> {
     const cosigner = await this.findCosigner(issuer);
     const transaction = await this.findTransaction(transactionId);
     const transactionWallet = transaction.wallet;
@@ -130,7 +135,7 @@ export class WalletService {
       throw ErrorFactory.alreadySignedBy;
     }
 
-    const signature = await transaction.createSignature({ id: uuidv4() });
+    const signature = await transaction.createSignature({ id: uuidv4(), witness });
     signature.setCosigner(cosigner);
     signature.setTransaction(transaction);
     transaction.addSignature(signature);

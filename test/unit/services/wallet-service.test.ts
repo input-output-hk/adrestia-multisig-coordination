@@ -44,12 +44,14 @@ describe('transactions should be in order by date', () => {
     await walletService.joinWallet(walletId, createCosigner('thirdCosigner'));
     const firstTransaction = await walletService.newTransactionProposal(walletId, {
       tx: 'firstTransacation',
-      issuer: defaultCosigner.pubKey
+      issuer: defaultCosigner.pubKey,
+      witness: 'someWitness'
     });
 
     const secondTransaction = await walletService.newTransactionProposal(walletId, {
       tx: 'secondTransacation',
-      issuer: defaultCosigner.pubKey
+      issuer: defaultCosigner.pubKey,
+      witness: 'someWitness'
     });
 
     const sevenDaysAgo = moment()
@@ -75,12 +77,14 @@ describe('transactions should be in order by date', () => {
     await walletService.joinWallet(walletId, createCosigner('thirdCosigner'));
     const firstTransaction = await walletService.newTransactionProposal(walletId, {
       tx: 'firstTransaction',
-      issuer: defaultCosigner.pubKey
+      issuer: defaultCosigner.pubKey,
+      witness: 'someWitness'
     });
 
     const secondTransaction = await walletService.newTransactionProposal(walletId, {
       tx: 'secondTransaction',
-      issuer: defaultCosigner.pubKey
+      issuer: defaultCosigner.pubKey,
+      witness: 'someWitness'
     });
 
     const sevenDaysAgo = moment()
@@ -115,7 +119,8 @@ describe('transactions should be in order by date', () => {
       transactions.push(
         await walletService.newTransactionProposal(walletId, {
           tx: 'someTransaction',
-          issuer: defaultCosigner.pubKey
+          issuer: defaultCosigner.pubKey,
+          witness: 'someWitness'
         })
       );
     }

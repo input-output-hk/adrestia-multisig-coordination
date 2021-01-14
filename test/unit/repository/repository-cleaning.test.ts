@@ -45,7 +45,8 @@ describe('DB cleaning mechanism', () => {
     // create transaction proposal
     const transaction = await walletService.newTransactionProposal(walletId, {
       issuer: defaultCosigner.pubKey,
-      tx: 'someTransaction'
+      tx: 'someTransaction',
+      witness: 'someWitness'
     });
 
     // force updateAt value to an old one
@@ -92,12 +93,13 @@ describe('DB cleaning mechanism', () => {
     // create transaction proposal
     const transaction = await walletService.newTransactionProposal(walletId, {
       issuer: defaultCosigner.pubKey,
-      tx: 'someTransaction'
+      tx: 'someTransaction',
+      witness: 'someWitness'
     });
     expect(transaction.transactionState).toBe('WaitingForSignatures');
 
     // sign proposal
-    await walletService.signTransaction(transaction.transactionId, secondCosigner.pubKey);
+    await walletService.signTransaction(transaction.transactionId, secondCosigner.pubKey, 'someWitness');
     const signedTransaction = await Transaction.findByPk(transaction.transactionId);
     expect(signedTransaction).not.toBeNull();
 
