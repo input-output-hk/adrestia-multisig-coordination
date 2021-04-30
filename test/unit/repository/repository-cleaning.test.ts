@@ -9,13 +9,11 @@ import { setupDatabase, setupServices } from '../../e2e/utils/test-utils';
 describe('DB cleaning mechanism', () => {
   let database: Sequelize;
   let databaseCleaner: DBCleaner;
-  let expirationTime: number; // in minutes
   let pruningTime: number; // in minutes
   let enableSync: boolean;
 
   beforeAll(async () => {
     const environment = parseEnvironment();
-    expirationTime = environment.EXPIRATION_TIME;
     pruningTime = environment.PRUNING_TIME;
     enableSync = environment.ENABLE_SYNC;
     database = await setupDatabase(false);

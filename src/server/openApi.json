@@ -61,10 +61,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "success": {
-                  "type": "boolean",
-                  "default": "true"
-                },
                 "message": {
                   "$ref": "#/components/schemas/Message"
                 }

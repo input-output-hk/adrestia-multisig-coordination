@@ -6,10 +6,8 @@ import connectDB from './connection';
 
 const prune = async (databaseCleaner: DBCleaner): Promise<void> => {
   console.log('DB cleaning mechanism: task started');
-  const removedTransactions = await databaseCleaner.pruneTransactions();
-  console.log(`Number of removed transactions: ${removedTransactions}`);
-  const removedWallets = await databaseCleaner.pruneWallets();
-  console.log(`Number of removed wallets: ${removedWallets}`);
+  // const removedMessages = await databaseCleaner.pruneMessages();
+  // console.log(`Number of removed wallets: ${removedMessages}`);
   console.log('DB cleaning mechanism: task finished');
 };
 

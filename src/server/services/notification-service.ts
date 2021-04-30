@@ -1,21 +1,18 @@
 import * as http from 'http';
 import { Server, Socket } from 'socket.io';
-import { WalletRepository } from '../db/wallet-repository';
-interface JoinMessage {
-  pubKey: string;
-}
-export interface WalletSubscription {
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SubscribeResponse = 'Channel not found' | any;
+export interface NewMessage {
   message: string;
-  wallets: string[];
-}
-export type JoinResponse = 'No wallets to subscribe' | 'Couldn`t find cosigner with given PubKey' | WalletSubscription;
-export interface NewProposalNotification {
-  walletId: string;
-  transaction: Components.Schemas.Transaction;
 }
 
-type SocketMessage = 'join_message' | 'new_proposal';
-type MessageTypes = JoinResponse | NewProposalNotification;
+enum SocketMessage {
+  NewMessage = 'new_message',
+  Subscribe = 'subscribe'
+}
+
+type MessageTypes = SubscribeResponse | NewMessage;
 
 type SocketActionFn<T> = (socket: Socket) => (message: T) => void;
 
@@ -45,48 +42,13 @@ export class NotificationService {
   }
 
   private registerEvents() {
-    const joinMessageEvent = this.createSocket<JoinMessage>('join_message', socket => async joinMessage => {
-      socket.join('channel id');
-    });
-    return [joinMessageEvent];
-  }
-
-  public notifyNewProposal(walletId: string, transaction: Components.Schemas.Transaction): void {
-    this.emit(this.io.to(`wallets:${walletId}`), 'new_proposal', { walletId, transaction });
-  }
-
-  /**
-   * Find any socket connected and subscribed with pubKey and update subscription with new wallet
-   *
-   * @param pubKey used to find sockets
-   * @param walletId to subscribe
-   */
-  public async subscribeCosigner(pubKey: string, walletId: string): Promise<void> {
-    const sockets = await this.findSocketsFor(pubKey);
-    sockets.forEach(socket => this.subscribeTo(socket, [walletId]));
-  }
-
-  private async findSocketsFor(pubKey: string): Promise<Socket[]> {
-    const room = new Set([`pubKeys:${pubKey}`]);
-    const socketIds = await this.io.sockets.adapter.sockets(room);
-    return [...socketIds]
-      .map(socketId => this.io.sockets.sockets.get(socketId))
-      .filter((s): s is Socket => s !== undefined);
-  }
-
-  private subscribeTo(socket: Socket, wallets: string[]): void {
-    wallets.forEach(walletId => socket.join(`wallets:${walletId}`));
-    this.emit(socket, 'join_message', this.resolveMessage(wallets));
-  }
-
-  private resolveMessage(subscribedWallets: string[]): JoinResponse {
-    if (subscribedWallets.length === 0) {
-      return 'No wallets to subscribe';
-    }
-    return {
-      message: 'Subscribed to wallets',
-      wallets: subscribedWallets
-    };
+    const subscribeMessageEvent = this.createSocket<SocketMessage>(
+      SocketMessage.Subscribe,
+      socket => async subscribeMessage => {
+        socket.join('channel id');
+      }
+    );
+    return [subscribeMessageEvent];
   }
 }
 

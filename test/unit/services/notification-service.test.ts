@@ -2,8 +2,7 @@
 import * as http from 'http';
 import { Sequelize } from 'sequelize/types';
 import { io, Socket } from 'socket.io-client';
-import * as Repositories from '../../../src/server/db/repositories';
-import { JoinResponse, NotificationService } from '../../../src/server/services/notification-service';
+import { NotificationService } from '../../../src/server/services/notification-service';
 import { Environment, parseEnvironment } from '../../../src/server/utils/environment-parser';
 import { setupDatabase } from '../../e2e/utils/test-utils';
 

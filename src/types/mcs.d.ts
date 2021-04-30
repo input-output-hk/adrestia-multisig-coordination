@@ -1,158 +1,53 @@
 declare namespace Components {
   namespace RequestBodies {
-    export type CreateWallet = Schemas.WalletCreation;
-    export type JoinWallet = Schemas.CoSigner;
-    export interface SignProposal {
-      issuer: Schemas.PubKey;
-      witness: Schemas.Witness;
-    }
-    export interface TransactionProposal {
-      issuer: Schemas.PubKey;
-      tx: Schemas.UnsignedTransaction;
-      witness: Schemas.Witness;
-    }
+    export type Message = Schemas.Message;
   }
   namespace Responses {
-    export interface CreateWallet {
-      walletId: Schemas.WalletId;
+    export interface Message {
+      message?: Schemas.Message;
     }
-    export interface JoinWallet {
-      walletState: Schemas.WalletState;
-    }
-    export type SignTransaction = Schemas.Transaction;
-    export type TransactionProposal = Schemas.Transaction;
-    export type TransactionProposals = Schemas.Transaction[];
-    export type WalletState = Schemas.Wallet;
+    export type Messages = Schemas.Message[];
   }
   namespace Schemas {
-    export interface CoSigner {
-      cosignerAlias: CoSignerAlias;
-      pubKey: PubKey;
-    }
-    export type CoSignerAlias = string;
+    export type ChannelId = string;
     export interface ErrorResponse {
       statusCode: number;
       message: string;
     }
-    export type PubKey = string;
-    export interface Transaction {
-      transactionId: TransactionId;
-      unsignedTransaction: UnsignedTransaction;
-      transactionState: TransactionState;
-      createdAt: string; // date-time
-      updatedAt: string; // date-time
-      witnesses: Witness[];
+    export interface Message {
+      message: string; // ^[0-9a-fA-F]+$
     }
-    export type TransactionId = string;
-    export type TransactionState = 'WaitingForSignatures' | 'Signed' | 'Expired';
-    export type UnsignedTransaction = string;
-    export interface Wallet {
-      id: WalletId;
-      name: string;
-      m: number;
-      n: number;
-      state: WalletState;
-      cosigners: CoSigner[];
-      pendingTxs: number;
-      createdAt: string; // date-time
-      initiator: PubKey;
-    }
-    export interface WalletCreation {
-      walletName: string;
-      m: number;
-      n: number;
-      cosigner: CoSigner;
-    }
-    export type WalletId = string;
-    export type WalletState = 'WaitingForCosigners' | 'Ready' | 'Expired';
-    export type Witness = string;
   }
 }
 declare namespace Paths {
-  namespace CreateWallet {
-    export type RequestBody = Components.RequestBodies.CreateWallet;
-    namespace Responses {
-      export type $200 = Components.Responses.CreateWallet;
-      export type $400 = Components.Schemas.ErrorResponse;
-      export type $500 = Components.Schemas.ErrorResponse;
-    }
-  }
-  namespace GetTransactionProposals {
+  namespace GetMessages {
     namespace Parameters {
-      export type Cosigner = string;
+      export type ChannelId = Components.Schemas.ChannelId;
       export type From = string; // date-time
-      export type OnlyPending = boolean;
-      export type WalletId = string;
     }
     export interface PathParameters {
-      walletId: Parameters.WalletId;
+      channelId: Parameters.ChannelId;
     }
     export interface QueryParameters {
       from?: Parameters.From /* date-time */;
-      onlyPending?: Parameters.OnlyPending;
-      cosigner?: Parameters.Cosigner;
     }
     namespace Responses {
-      export type $200 = Components.Responses.TransactionProposals;
+      export type $200 = Components.Responses.Messages;
       export type $404 = Components.Schemas.ErrorResponse;
       export type $500 = Components.Schemas.ErrorResponse;
     }
   }
-  namespace GetWalletState {
+  namespace SendMessage {
     namespace Parameters {
-      export type WalletId = string;
+      export type ChannelId = Components.Schemas.ChannelId;
     }
     export interface PathParameters {
-      walletId: Parameters.WalletId;
+      channelId: Parameters.ChannelId;
     }
+    export type RequestBody = Components.RequestBodies.Message;
     namespace Responses {
-      export type $200 = Components.Responses.WalletState;
-      export type $404 = Components.Schemas.ErrorResponse;
-      export type $500 = Components.Schemas.ErrorResponse;
-    }
-  }
-  namespace JoinWallet {
-    namespace Parameters {
-      export type WalletId = string;
-    }
-    export interface PathParameters {
-      walletId: Parameters.WalletId;
-    }
-    export type RequestBody = Components.RequestBodies.JoinWallet;
-    namespace Responses {
-      export type $200 = Components.Responses.JoinWallet;
+      export type $200 = Components.Responses.Message;
       export type $400 = Components.Schemas.ErrorResponse;
-      export type $404 = Components.Schemas.ErrorResponse;
-      export type $500 = Components.Schemas.ErrorResponse;
-    }
-  }
-  namespace NewTransactionProposal {
-    namespace Parameters {
-      export type WalletId = string;
-    }
-    export interface PathParameters {
-      walletId: Parameters.WalletId;
-    }
-    export type RequestBody = Components.RequestBodies.TransactionProposal;
-    namespace Responses {
-      export type $200 = Components.Responses.TransactionProposal;
-      export type $400 = Components.Schemas.ErrorResponse;
-      export type $404 = Components.Schemas.ErrorResponse;
-      export type $500 = Components.Schemas.ErrorResponse;
-    }
-  }
-  namespace SignTransaction {
-    namespace Parameters {
-      export type TxId = string;
-    }
-    export interface PathParameters {
-      txId: Parameters.TxId;
-    }
-    export type RequestBody = Components.RequestBodies.SignProposal;
-    namespace Responses {
-      export type $200 = Components.Responses.SignTransaction;
-      export type $400 = Components.Schemas.ErrorResponse;
-      export type $404 = Components.Schemas.ErrorResponse;
       export type $500 = Components.Schemas.ErrorResponse;
     }
   }

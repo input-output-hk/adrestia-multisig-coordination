@@ -16,6 +16,7 @@ describe('Environment parser test', () => {
     expect(mockExit).toHaveBeenCalledWith(1);
     process.env.PORT = previousPort;
   });
+
   test('Should throw an error if a field is expected to be a valid host but its not', () => {
     const previousAddress = process.env.BIND_ADDRESS;
     process.env.BIND_ADDRESS = fakeHost;
@@ -26,6 +27,7 @@ describe('Environment parser test', () => {
     expect(mockExit).toHaveBeenCalledWith(1);
     process.env.BIND_ADDRESS = previousAddress;
   });
+
   test('Should return all environment variables and topology file parsed', () => {
     const environment = environmentParser();
     expect(environment).not.toBeUndefined();

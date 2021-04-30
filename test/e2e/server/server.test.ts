@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 /* eslint-disable no-magic-numbers */
 import { FastifyInstance } from 'fastify';
 import StatusCodes from 'http-status-codes';
@@ -18,17 +19,16 @@ describe('Server test', () => {
     await database.close();
   });
 
-  test('should return a generic error if payload is not valid', async () => {
-    const response = await server.inject({
-      method: 'post',
-      url: `/messages/${channelId}`,
-      payload: { asdasa: 10 }
-    });
-
-    expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
-    // eslint-disable-next-line quotes
-    expect(response.json().message).toEqual("body should have required property 'message'");
-  });
+  // Endpoint and services are not available at this point, there is no sense to main this test, keep commented for future reimplementation
+  // test('should return a generic error if payload is not valid', async () => {
+  //   const response = await server.inject({
+  //     method: 'post',
+  //     url: `/messages/${channelId}`,
+  //     payload: { asdasa: 10 }
+  //   });
+  //   expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+  //   expect(response.json().message).toEqual("body should have required property 'message'");
+  // });
 
   test('should return an error if there is db connection problem', async () => {
     // Perfom action with server 1
