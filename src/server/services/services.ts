@@ -14,7 +14,7 @@ export interface Services {
  * @param repositories repositories to be used by the services
  */
 export const configure = (httpServer: http.Server, repositories: Repositories): Services => {
-  const notificationServiceInstance = notificationService(httpServer, repositories.walletRepository);
+  const notificationServiceInstance = notificationService(httpServer);
   return {
     notificationService: notificationServiceInstance,
     walletService: walletService(notificationServiceInstance, repositories.walletRepository)

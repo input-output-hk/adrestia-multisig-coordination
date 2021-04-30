@@ -26,10 +26,8 @@ interface WrappedServerSocket<T> {
 
 export class NotificationService {
   private io: Server;
-  private walletRepository: WalletRepository;
 
-  constructor(httpServer: http.Server, walletRepository: WalletRepository) {
-    this.walletRepository = walletRepository;
+  constructor(httpServer: http.Server) {
     this.io = new Server(httpServer, { path: '/notifications' });
     this.io.on('connection', async (socket: Socket) => {
       this.registerEvents().forEach(({ event, callback }) => {
@@ -48,15 +46,7 @@ export class NotificationService {
 
   private registerEvents() {
     const joinMessageEvent = this.createSocket<JoinMessage>('join_message', socket => async joinMessage => {
-      const pubKey = joinMessage.pubKey;
-      const cosigner = await this.walletRepository.findCosigner(pubKey);
-      if (!cosigner) {
-        this.emit(socket, 'join_message', 'Couldn`t find cosigner with given PubKey');
-        return;
-      }
-      socket.join(`pubKeys:${pubKey}`);
-      const wallets = (await cosigner.getWallets()).map(wallet => wallet.id);
-      this.subscribeTo(socket, wallets);
+      socket.join('channel id');
     });
     return [joinMessageEvent];
   }
@@ -100,7 +90,6 @@ export class NotificationService {
   }
 }
 
-const configure = (httpServer: http.Server, walletRepository: WalletRepository): NotificationService =>
-  new NotificationService(httpServer, walletRepository);
+const configure = (httpServer: http.Server): NotificationService => new NotificationService(httpServer);
 
 export default configure;
