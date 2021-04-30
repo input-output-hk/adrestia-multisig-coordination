@@ -1,5 +1,5 @@
 import * as http from 'http';
-import { Repositories } from '../db/repositories';
+// import { Repositories } from '../db/repositories';
 import notificationService, { NotificationService } from './notification-service';
 
 export interface Services {
@@ -11,7 +11,7 @@ export interface Services {
  *
  * @param repositories repositories to be used by the services
  */
-export const configure = (httpServer: http.Server, repositories: Repositories): Services => {
+export const configure = (httpServer: http.Server, repositories: unknown): Services => {
   const notificationServiceInstance = notificationService(httpServer);
   return {
     notificationService: notificationServiceInstance
