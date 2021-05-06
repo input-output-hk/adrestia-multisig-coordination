@@ -25,7 +25,7 @@ const buildServer = (
   const server = fastify({ logger: { level: logLevel } });
   server.register(fastifyBlipp);
   server.register(openapiGlue, {
-    specification: `${__dirname}/openApi.json`,
+    specification: `${__dirname}/api/openApi.json`,
     service: Controllers.configure(servicesFactory(server.server)),
     noAdditional: true
   });

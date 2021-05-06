@@ -7,7 +7,7 @@
     "build": "tsc -p tsconfig-dist.json",
     "test": "jest --runInBand",
     "test:coverage": "jest --runInBand --coverage",
-    "generate-types": "dtsgen --out ./src/types/mcs.d.ts ./src/server/openApi.json && prettier --write ./src/types/mcs.d.ts",
+    "generate-types": "dtsgen --out ./src/types/mcs.d.ts ./src/server/api/openApi.json && prettier --write ./src/types/mcs.d.ts",
     "dev": "ts-node-dev --respawn --transpileOnly -r dotenv/config --watch ./src ./src/server/index.ts",
     "lint": "eslint \"./test/**/*.ts\" \"./src/**/*.ts\"",
     "services:up": "docker-compose up --build",
