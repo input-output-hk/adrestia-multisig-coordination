@@ -17,14 +17,30 @@
         "maxLength": 512
       },
       "Message": {
+        "type": "string",
+        "pattern": "^[0-9a-fA-F]+$",
+        "minLength": 1,
+        "maxLength": 128000
+      },
+      "MessageStored": {
         "type": "object",
-        "required": ["message"],
+        "required": ["channelId", "message", "createdAt"],
         "properties": {
+          "channelId": {
+            "$ref": "#/components/schemas/ChannelId"
+          },
           "message": {
-            "type": "string",
-            "pattern": "^[0-9a-fA-F]+$",
-            "minLength": 1
+            "$ref": "#/components/schemas/Message"
+          },
+          "createdAt": {
+            "type": "string"
           }
+        }
+      },
+      "MessageList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/MessageStored"
         }
       },
       "ErrorResponse": {
@@ -43,11 +59,16 @@
     "requestBodies": {
       "message": {
         "description": "new message",
-        "required": true,
         "content": {
           "application/json": {
             "schema": {
-              "$ref": "#/components/schemas/Message"
+              "type": "object",
+              "required": ["message"],
+              "properties": {
+                "message": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
             }
           }
         }
@@ -59,12 +80,7 @@
         "content": {
           "application/json": {
             "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "$ref": "#/components/schemas/Message"
-                }
-              }
+              "$ref": "#/components/schemas/MessageStored"
             }
           }
         }
@@ -74,10 +90,7 @@
         "content": {
           "application/json": {
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/components/schemas/Message"
-              }
+              "$ref": "#/components/schemas/MessageList"
             }
           }
         }

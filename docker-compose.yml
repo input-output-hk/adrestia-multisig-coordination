@@ -29,10 +29,9 @@ services:
       - DB_CONNECTION_STRING=postgresql://postgres:notForProduction!@postgres:5432/cexplorer
       - LOGGER_LEVEL=debug
       - PORT=8080
-      - PAGE_SIZE=25
       - ENABLE_SYNC=true
       - CRON_EXPRESSION="0 0 * * *"
-      - EXPIRATION_TIME=2
+      - MESSAGE_SIZE=128
       - PRUNING_TIME=2
     command: bash -c "yarn --offline && yarn dev"
     expose:

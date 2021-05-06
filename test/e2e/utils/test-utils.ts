@@ -34,31 +34,19 @@ export const setupServer = (database: Sequelize): FastifyInstance => {
   return buildServer(setupServices(environment, database), environment.LOGGER_LEVEL);
 };
 
-const setDate = async (
-  database: Sequelize,
-  table: string,
-  id: string,
-  newDate: Date,
-  column: string
-): Promise<void> => {
-  await database.query(
-    `
-    UPDATE ${table}
-    SET "${column}" = :date
-    WHERE id = :id`,
-    {
-      replacements: {
-        date: newDate,
-        id
-      }
+export const addQueryToUrl = (url: string, queryParameters: Record<string, unknown>): string => {
+  // Clean undefined and null params
+  Object.keys(queryParameters).forEach(key => {
+    const value = queryParameters[key];
+    if (value === undefined || value === null) {
+      delete queryParameters[key];
     }
-  );
-};
+  });
 
-export const setCreatedAt = async (database: Sequelize, table: string, id: string, newDate: Date): Promise<void> => {
-  await setDate(database, table, id, newDate, 'createdAt');
-};
+  // Join non-empty params
+  const queryJoined = Object.keys(queryParameters)
+    .map(key => `${key}=${queryParameters[key] || ''}`)
+    .join('&');
 
-export const setUpdatedAt = async (database: Sequelize, table: string, id: string, newDate: Date): Promise<void> => {
-  await setDate(database, table, id, newDate, 'updatedAt');
+  return queryJoined ? `${url}?${queryJoined}` : url;
 };
