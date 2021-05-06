@@ -27,7 +27,7 @@ RUN yarn --offline --frozen-lockfile --non-interactive --production
 FROM nodejs-builder as mcs
 ARG NETWORK=mainnet
 COPY --from=mcs-builder /app/dist /mcs/dist
-COPY --from=mcs-builder /app/src/server/api/openApi.json /mcs/dist/src/server/api
+COPY --from=mcs-builder /app/src/server/api /mcs/dist/src/server/api
 COPY --from=mcs-production-deps /app/node_modules /mcs/node_modules
 EXPOSE 8080
 CMD ["node", "/mcs/dist/src/server/index.js"]
