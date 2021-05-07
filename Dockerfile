@@ -1,4 +1,4 @@
-FROM node:14.5.0-alpine as nodejs-builder
+FROM docker.atixlabs.com/node:14.5.0-alpine as nodejs-builder
 
 # Copy deps
 FROM nodejs-builder as mcs-base

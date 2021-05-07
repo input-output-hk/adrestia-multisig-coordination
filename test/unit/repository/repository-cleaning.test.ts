@@ -1,10 +1,12 @@
 /* eslint-disable no-magic-numbers */
 /* eslint-disable unicorn/consistent-function-scoping */
 import * as http from 'http';
+import moment from 'moment';
 import { Sequelize } from 'sequelize/types';
 import databaseCleaner_, { DBCleaner } from '../../../src/server/db/cleaner';
+import Message from '../../../src/server/model/message';
 import { parseEnvironment } from '../../../src/server/utils/environment-parser';
-import { setupDatabase, setupServices } from '../../e2e/utils/test-utils';
+import { setCreatedAt, setupDatabase, setupServices } from '../../e2e/utils/test-utils';
 
 describe('DB cleaning mechanism', () => {
   let database: Sequelize;
@@ -29,8 +31,29 @@ describe('DB cleaning mechanism', () => {
     if (enableSync) await database.sync({ force: true });
   });
 
-  // remove/redefine when the channels implementation are ready
-  test('fake test to prevent suite tests from failing', () => {
-    expect(true).toBe(true);
+  test('Messages are pruned from DB after TTL', async () => {
+    const channelId = 'A';
+    const message = 'A';
+
+    await Message.create({
+      channelId,
+      message
+    });
+
+    const simulatedDate = moment()
+      .subtract(pruningTime + 1, 'minutes')
+      .toDate();
+
+    await setCreatedAt(database, channelId, message, simulatedDate);
+
+    const prunedMessages = await databaseCleaner.pruneMessages();
+    expect(prunedMessages).toBe(1);
+    const foundMessage = await Message.findOne({
+      where: {
+        channelId,
+        message
+      }
+    });
+    expect(foundMessage).toBeNull();
   });
 });

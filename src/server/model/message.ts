@@ -1,5 +1,5 @@
 /* eslint-disable new-cap */
-import { Model, Sequelize, DataTypes } from 'sequelize';
+import { DataTypes, Model, Sequelize } from 'sequelize';
 import { MAX_CHANNEL_LENGTH, MAX_MESSAGE_LENGTH, MESSAGE_PATTERN } from '../utils/constants';
 
 type ChannelId = Components.Schemas.ChannelId;
@@ -17,9 +17,6 @@ class MessageClass extends Model<MessageAttributes, MessageAttributesCreation> i
   public message!: Message;
 
   public readonly createdAt!: Date;
-
-  public getMessages!: Promise<Message[]>;
-  public addMessage!: Promise<Message>;
 
   public toDTO(): Components.Schemas.MessageStored {
     return {

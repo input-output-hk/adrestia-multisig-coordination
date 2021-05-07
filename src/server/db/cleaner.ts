@@ -1,18 +1,24 @@
 // import sequelize, { Op } from 'sequelize';
+import moment from 'moment';
+import { Op } from 'sequelize';
+import Message from '../model/message';
 import { Environment } from '../utils/environment-parser';
 
-interface PruneParams {
-  pruningTime: number;
+export interface DBCleaner {
+  pruneMessages(): Promise<number>;
 }
 
-export class DBCleaner {
-  private pruneParams: PruneParams;
-
-  constructor(environment: Environment) {
-    this.pruneParams = {
-      pruningTime: environment.PRUNING_TIME
-    };
-  }
-}
-
-export default (environment: Environment): DBCleaner => new DBCleaner(environment);
+export default (environment: Environment): DBCleaner => ({
+  pruneMessages: async () =>
+    await Message.destroy({
+      where: {
+        [Op.and]: {
+          createdAt: {
+            [Op.lte]: moment()
+              .subtract(environment.PRUNING_TIME, 'minutes')
+              .toDate()
+          }
+        }
+      }
+    })
+});

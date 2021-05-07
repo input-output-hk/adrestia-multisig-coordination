@@ -50,3 +50,25 @@ export const addQueryToUrl = (url: string, queryParameters: Record<string, unkno
 
   return queryJoined ? `${url}?${queryJoined}` : url;
 };
+
+export const setCreatedAt = async (
+  database: Sequelize,
+  channelId: Components.Schemas.ChannelId,
+  message: Components.Schemas.Message,
+  newDate: Date
+): Promise<void> => {
+  await database.query(
+    `
+    UPDATE "messages"
+    SET "createdAt" = :date
+    WHERE "channelId" = :channelId AND "message" = :message`,
+    {
+      replacements: {
+        date: newDate,
+        channelId,
+        message
+      },
+      raw: true
+    }
+  );
+};
