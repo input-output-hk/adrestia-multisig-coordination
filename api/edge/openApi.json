@@ -1,0 +1,198 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "Multisig Coordination Server",
+    "description": "Multisig Coordination Server",
+    "version": "1.0",
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "components": {
+    "schemas": {
+      "ChannelId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+      },
+      "Message": {
+        "type": "string",
+        "pattern": "^[0-9a-fA-F]+$",
+        "minLength": 1,
+        "maxLength": 128000
+      },
+      "MessageStored": {
+        "type": "object",
+        "required": ["channelId", "message", "createdAt"],
+        "properties": {
+          "channelId": {
+            "$ref": "#/components/schemas/ChannelId"
+          },
+          "message": {
+            "$ref": "#/components/schemas/Message"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        }
+      },
+      "MessageList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/MessageStored"
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["statusCode", "message"],
+        "properties": {
+          "statusCode": {
+            "type": "number"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "requestBodies": {
+      "message": {
+        "description": "new message",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": ["message"],
+              "properties": {
+                "message": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "message": {
+        "description": "Message successfully sended and stored",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/MessageStored"
+            }
+          }
+        }
+      },
+      "messages": {
+        "description": "Channel messages response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/MessageList"
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/messages/{channelId}": {
+      "post": {
+        "summary": "Send a Message and stores on a channel",
+        "description": "Send a Message and stores it for given channelId. Notifies subscribers.",
+        "operationId": "sendMessage",
+        "tags": ["message", "store", "channel", "notify"],
+        "parameters": [
+          {
+            "name": "channelId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ChannelId"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/message"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/message"
+          },
+          "400": {
+            "description": "Bad Request. Invalid message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get Channel Messages",
+        "description": "Retrieves Messages with given channelId",
+        "operationId": "getMessages",
+        "tags": ["messages", "channel"],
+        "parameters": [
+          {
+            "name": "channelId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ChannelId"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/messages"
+          },
+          "404": {
+            "description": "Channel not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
