@@ -81,7 +81,7 @@
     "fastify-metrics": "5.0.1",
     "fastify-openapi-glue": "1.6.0",
     "moment": "2.27.0",
-    "node-cron": "2.0.3",
+    "node-cron": "3.0.0",
     "pg": "8.3.0",
     "sequelize": "6.3.5",
     "socket.io": "3.0.4",
