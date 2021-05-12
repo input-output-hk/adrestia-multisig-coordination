@@ -103,7 +103,7 @@
         "summary": "Send a Message and stores on a channel",
         "description": "Send a Message and stores it for given channelId. Notifies subscribers.",
         "operationId": "sendMessage",
-        "tags": ["message", "store", "channel", "notify"],
+        "tags": ["messages"],
         "parameters": [
           {
             "name": "channelId",
@@ -147,7 +147,7 @@
         "summary": "Get Channel Messages",
         "description": "Retrieves Messages with given channelId",
         "operationId": "getMessages",
-        "tags": ["messages", "channel"],
+        "tags": ["messages"],
         "parameters": [
           {
             "name": "channelId",
