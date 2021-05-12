@@ -28,6 +28,7 @@ services:
     environment:
       - DB_CONNECTION_STRING=postgresql://postgres:notForProduction!@postgres:5432/cexplorer
       - LOGGER_LEVEL=debug
+      - BIND_ADDRESS=0.0.0.0
       - PORT=8080
       - ENABLE_SYNC=true
       - CRON_EXPRESSION="0 0 * * *"
