@@ -3,7 +3,7 @@ const KB_TO_CHAR = 1000;
 
 const MAX_CHANNEL_LENGTH = 512;
 const MAX_MESSAGE_LENGTH = (process.env.MESSAGE_SIZE ?? 128) * KB_TO_CHAR;
-const MESSAGE_PATTERN = '^[0-9a-fA-F]+$';
+const MESSAGE_PATTERN = '^([0-9a-fA-F]{2})*$';
 
 const STATUS_CODES = {
   BAD_REQUEST: 400,

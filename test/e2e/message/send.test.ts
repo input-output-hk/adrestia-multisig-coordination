@@ -46,9 +46,19 @@ describe('POST /message/{channelId} [send message to channel]', () => {
     expect(request).toHaveProperty('statusCode', STATUS_CODES.BAD_REQUEST);
   });
 
+  it('should return bad request after sending a message with odd length', async () => {
+    const { channelId } = defaultMessage;
+    const message = '123';
+
+    let request = await sendMessageToChannel(server, { channelId, message });
+    request = request.json();
+
+    expect(request).toHaveProperty('statusCode', STATUS_CODES.BAD_REQUEST);
+  });
+
   it('should return bad request after sending a message with a larger size than allowed', async () => {
     const { channelId } = defaultMessage;
-    const message = 'A'.repeat(MAX_MESSAGE_LENGTH + 1);
+    const message = 'A'.repeat(MAX_MESSAGE_LENGTH + 2);
 
     let request = await sendMessageToChannel(server, { channelId, message });
     request = request.json();
@@ -90,7 +100,7 @@ describe('POST /message/{channelId} [send message to channel]', () => {
   it('should store messages after send valid message to a channel', async () => {
     const { channelId } = defaultMessage;
     const firstMessage = 'ABDE';
-    const secondMessage = '12345';
+    const secondMessage = '1234';
 
     await sendMessageToChannel(server, { channelId, message: firstMessage });
     await sendMessageToChannel(server, { channelId, message: secondMessage });

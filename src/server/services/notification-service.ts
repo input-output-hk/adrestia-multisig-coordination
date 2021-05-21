@@ -4,8 +4,6 @@ import { Server, Socket } from 'socket.io';
 
 type ChannelId = Components.Schemas.ChannelId;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type SubscribeResponse = Components.Responses.Subscription;
 export interface NewMessage {
   message?: Components.Schemas.Message;
   channelId: ChannelId;

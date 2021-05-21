@@ -18,7 +18,7 @@
       },
       "Message": {
         "type": "string",
-        "pattern": "^[0-9a-fA-F]+$",
+        "pattern": "^([0-9a-fA-F]{2})*$",
         "minLength": 1,
         "maxLength": 128000
       },

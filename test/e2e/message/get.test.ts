@@ -44,8 +44,8 @@ describe('GET /message/{channelId} [get messages from channel]', () => {
 
   it('should return bad request after use bad-formatted date-time filter', async () => {
     const { channelId } = defaultMessage;
-    await sendMessageToChannel(server, { channelId, message: 'A' });
-    await sendMessageToChannel(server, { channelId, message: 'B' });
+    await sendMessageToChannel(server, { channelId, message: 'AA' });
+    await sendMessageToChannel(server, { channelId, message: 'BB' });
 
     const from = 'a bad date';
 
@@ -57,9 +57,9 @@ describe('GET /message/{channelId} [get messages from channel]', () => {
 
   it('should return stored messages from channel', async () => {
     const { channelId } = defaultMessage;
-    await sendMessageToChannel(server, { channelId, message: 'A' });
-    await sendMessageToChannel(server, { channelId, message: 'B' });
-    await sendMessageToChannel(server, { channelId, message: 'C' });
+    await sendMessageToChannel(server, { channelId, message: 'AA' });
+    await sendMessageToChannel(server, { channelId, message: 'BB' });
+    await sendMessageToChannel(server, { channelId, message: 'CC' });
 
     const request = await getMessagesFromChannel(server, { channelId });
     expect(request.json()).toHaveLength(3);
@@ -69,9 +69,9 @@ describe('GET /message/{channelId} [get messages from channel]', () => {
   it('should return only channel messages', async () => {
     const channelA = 'channel_a';
     const channelB = 'channel_b';
-    await sendMessageToChannel(server, { channelId: channelA, message: 'A' });
-    await sendMessageToChannel(server, { channelId: channelA, message: 'B' });
-    await sendMessageToChannel(server, { channelId: channelB, message: 'C' });
+    await sendMessageToChannel(server, { channelId: channelA, message: 'AA' });
+    await sendMessageToChannel(server, { channelId: channelA, message: 'BB' });
+    await sendMessageToChannel(server, { channelId: channelB, message: 'CC' });
 
     const request = await getMessagesFromChannel(server, { channelId: channelA });
     const result = request.json();
@@ -85,10 +85,10 @@ describe('GET /message/{channelId} [get messages from channel]', () => {
   it('should return messages created from the filtered date', async () => {
     const channelId = 'channel_a';
 
-    await sendMessageToChannel(server, { channelId, message: 'A' });
+    await sendMessageToChannel(server, { channelId, message: 'AA' });
     const from = moment().toISOString();
-    await sendMessageToChannel(server, { channelId, message: 'B' });
-    await sendMessageToChannel(server, { channelId, message: 'C' });
+    await sendMessageToChannel(server, { channelId, message: 'BB' });
+    await sendMessageToChannel(server, { channelId, message: 'CC' });
 
     const request = await getMessagesFromChannel(server, { channelId, from });
     const result = request.json();

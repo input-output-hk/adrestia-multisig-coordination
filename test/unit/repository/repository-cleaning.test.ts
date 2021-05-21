@@ -33,7 +33,7 @@ describe('DB cleaning mechanism', () => {
 
   test('Messages are pruned from DB after TTL', async () => {
     const channelId = 'A';
-    const message = 'A';
+    const message = 'AA';
 
     await Message.create({
       channelId,
