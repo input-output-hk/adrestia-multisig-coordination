@@ -1,9 +1,6 @@
 import { Op, WhereOptions } from 'sequelize';
 import Message from '../model/message';
-import { Environment } from '../utils/environment-parser';
 import { ErrorFactory } from '../utils/errors';
-
-export type ChannelResponse = Promise<Components.Schemas.ChannelId | null>;
 
 type ChannelId = Components.Schemas.ChannelId;
 type MessageStored = Components.Schemas.MessageStored;
@@ -13,7 +10,7 @@ export interface MessageRepository {
   addMessage(channelId: ChannelId, message: Components.Schemas.Message): Promise<MessageStored>;
 }
 
-export const configure = (environment: Environment): MessageRepository => ({
+export const configure = (): MessageRepository => ({
   findMessages: async (channelId, from) => {
     const whereClause: WhereOptions[] = [{ channelId }];
 

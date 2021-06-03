@@ -1,13 +1,8 @@
 /* eslint-disable no-console */
-import * as http from 'http';
+import http from 'http';
 import { Server, Socket } from 'socket.io';
 
 type ChannelId = Components.Schemas.ChannelId;
-
-export interface NewMessage {
-  message?: Components.Schemas.Message;
-  channelId: ChannelId;
-}
 
 export enum SocketEvent {
   NewMessage = 'new_message',
@@ -15,8 +10,7 @@ export enum SocketEvent {
 }
 
 export enum SuccessMessage {
-  Subscribed = 'USER_SUBSCRIBED',
-  MessageSent = 'MESSAGE_SENT'
+  Subscribed = 'USER_SUBSCRIBED'
 }
 
 export type SocketResponse = {

@@ -1,4 +1,3 @@
-// import sequelize, { Op } from 'sequelize';
 import moment from 'moment';
 import { Op } from 'sequelize';
 import Message from '../model/message';
