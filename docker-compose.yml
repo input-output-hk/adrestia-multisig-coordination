@@ -55,6 +55,4 @@ secrets:
   postgres_user:
     file: ./config/secrets/postgres_user
 volumes:
-  node-db:
-  node-ipc:
   postgres-data:
