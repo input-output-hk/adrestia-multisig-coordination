@@ -22,7 +22,7 @@ describe('/notifications endpoint and subscribe to events', () => {
   beforeAll(async done => {
     environment = parseEnvironment();
     database = await setupDatabase(false);
-    server = setupServer(database);
+    server = setupServer();
     server.server.listen(environment.PORT);
     done();
   });

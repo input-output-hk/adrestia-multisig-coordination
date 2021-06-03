@@ -19,7 +19,7 @@ describe('DB cleaning mechanism', () => {
     pruningTime = environment.PRUNING_TIME;
     enableSync = environment.ENABLE_SYNC;
     database = await setupDatabase(false);
-    setupServices(environment, database)(new http.Server());
+    setupServices()(new http.Server());
     databaseCleaner = databaseCleaner_(environment);
   });
 

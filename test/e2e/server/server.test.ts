@@ -16,7 +16,7 @@ describe('Server test', () => {
 
   beforeAll(async () => {
     database = await setupDatabase(false);
-    server = setupServer(database);
+    server = setupServer();
   });
 
   afterAll(async () => {

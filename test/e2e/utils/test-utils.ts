@@ -4,7 +4,7 @@ import * as Repositories from '../../../src/server/db/repositories';
 import { initialize } from '../../../src/server/model/init';
 import buildServer from '../../../src/server/server';
 import * as Services from '../../../src/server/services/services';
-import { Environment, parseEnvironment } from '../../../src/server/utils/environment-parser';
+import { parseEnvironment } from '../../../src/server/utils/environment-parser';
 
 export const setupDatabase = async (offline: boolean): Promise<Sequelize> => {
   if (offline) {
@@ -20,18 +20,16 @@ export const setupDatabase = async (offline: boolean): Promise<Sequelize> => {
   return databaseInstance;
 };
 
-export const setupServices = (
-  environment: Environment,
-  database: Sequelize
-): ((httpServer: import('http').Server) => Services.Services) => httpServer => {
-  const repositories = Repositories.configure(environment);
+// eslint-disable-next-line unicorn/consistent-function-scoping
+export const setupServices = (): ((httpServer: import('http').Server) => Services.Services) => httpServer => {
+  const repositories = Repositories.configure();
   return Services.configure(httpServer, repositories);
 };
 
-export const setupServer = (database: Sequelize): FastifyInstance => {
+export const setupServer = (): FastifyInstance => {
   const environment = parseEnvironment();
 
-  return buildServer(setupServices(environment, database), environment.LOGGER_LEVEL);
+  return buildServer(setupServices(), environment.LOGGER_LEVEL);
 };
 
 export const addQueryToUrl = (url: string, queryParameters: Record<string, unknown>): string => {
