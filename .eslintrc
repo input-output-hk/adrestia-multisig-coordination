@@ -1,10 +1,13 @@
 {
   "parser": "@typescript-eslint/parser",
-  "extends": ["@atixlabs/eslint-config/configurations/node", "plugin:@typescript-eslint/recommended"],
+  "extends": ["@atixlabs/eslint-config/configurations/node", "plugin:@typescript-eslint/recommended", "plugin:jsdoc/recommended"],
   "ignorePatterns": ["rosetta-types.d.ts"],
   "settings": {
     "import/resolver": {
       "typescript": {}
     }
-  }
+  },
+  "plugins": [
+    "jsdoc"
+  ]
 }

@@ -11,7 +11,9 @@ export interface Services {
 /**
  * Configures all the services required by the app
  *
- * @param repositories repositories to be used by the services
+ * @param {*} httpServer to be used to handle the requests
+ * @param {*} repositories repositories to be used by the services
+ * @returns {*} notification and message services
  */
 export const configure = (httpServer: http.Server, repositories: Repositories): Services => {
   const notificationServiceInstance = notificationService(httpServer);

@@ -10,8 +10,9 @@ export interface Repositories {
  * Configures the repositories with the given DB connection to make them ready
  * to be used
  *
- * @param database connection to be used to run queries
+ * @param {*} environment connection to be used to run queries
+ * @returns {*} message repository
  */
-export const configure = (environment: Environment, database: Sequelize): Repositories => ({
+export const configure = (environment: Environment): Repositories => ({
   messageRepository: MessageRepository.configure(environment)
 });
