@@ -24,7 +24,7 @@ services:
         max-size: '200k'
         max-file: '10'
   multisig-coordination-server:
-    image: node
+    image: node:14.5.0-alpine
     environment:
       - DB_CONNECTION_STRING=postgresql://postgres:notForProduction!@postgres:5432/cexplorer
       - LOGGER_LEVEL=debug
@@ -55,6 +55,4 @@ secrets:
   postgres_user:
     file: ./config/secrets/postgres_user
 volumes:
-  node-db:
-  node-ipc:
   postgres-data:
