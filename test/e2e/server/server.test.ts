@@ -4,11 +4,15 @@ import { FastifyInstance } from 'fastify';
 import StatusCodes from 'http-status-codes';
 import { Sequelize } from 'sequelize';
 import { setupDatabase, setupServer } from '../utils/test-utils';
+import { sendMessageToChannel } from '../utils/message-utils';
 
 describe('Server test', () => {
   let database: Sequelize;
   let server: FastifyInstance;
-  const channelId = 'a-new-channel';
+  const defaultMessage = {
+    channelId: 'a-channel',
+    message: 'AA'
+  };
 
   beforeAll(async () => {
     database = await setupDatabase(false);
@@ -19,28 +23,20 @@ describe('Server test', () => {
     await database.close();
   });
 
-  // Endpoint and services are not available at this point, there is no sense to main this test, keep commented for future reimplementation
-  // test('should return a generic error if payload is not valid', async () => {
-  //   const response = await server.inject({
-  //     method: 'post',
-  //     url: `/messages/${channelId}`,
-  //     payload: { asdasa: 10 }
-  //   });
-  //   expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
-  //   expect(response.json().message).toEqual("body should have required property 'message'");
-  // });
-
   test('should return an error if there is db connection problem', async () => {
     // Perfom action with server 1
-    // Leave acceptance criteria for future usage
-    // expect(response.statusCode).toEqual(StatusCodes.OK);
-    // expect(response.json()).toHaveProperty('message');
+    const { channelId, message } = defaultMessage;
+
+    const firstRequest = await sendMessageToChannel(server, { channelId, message });
+
+    expect(firstRequest).toHaveProperty('statusCode', StatusCodes.OK);
+    expect(firstRequest.json()).toHaveProperty('message');
 
     await database.close();
 
     // Perfom action with server 2
+    const secondRequest = await sendMessageToChannel(server, { channelId, message });
 
-    // Leave acceptance criteria for future usage
-    expect(500).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+    expect(secondRequest).toHaveProperty('statusCode', StatusCodes.INTERNAL_SERVER_ERROR);
   });
 });
