@@ -16,8 +16,9 @@ interface ExtraParams {
  * This function builds a Fastify instance connecting the services with the
  * corresponding fastify route handlers.
  *
- * @param services to be used to handle the requests
- * @param logger true if logger should be enabled, false otherwise
+ * @param {*} servicesFactory to be used to handle the requests
+ * @param {string} logLevel indicates up to which level to log into console
+ * @returns {*} a server instance
  */
 const buildServer = (
   servicesFactory: (httpServer: Server) => Services,

@@ -24,7 +24,7 @@ export const setupServices = (
   environment: Environment,
   database: Sequelize
 ): ((httpServer: import('http').Server) => Services.Services) => httpServer => {
-  const repositories = Repositories.configure(environment, database);
+  const repositories = Repositories.configure(environment);
   return Services.configure(httpServer, repositories);
 };
 
