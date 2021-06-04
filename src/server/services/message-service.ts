@@ -23,7 +23,7 @@ export class MessageService {
     const result = await this.repository.addMessage(channelId, message);
 
     // Send to channel
-    this.notificationService.sendMessageToChannel(channelId, message);
+    await this.notificationService.sendMessageToChannel(channelId, message);
     return result;
   }
 }
