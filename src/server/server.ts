@@ -7,11 +7,6 @@ import * as Controllers from './controllers/controllers';
 import { Services } from './services/services';
 import { MAX_CHANNEL_LENGTH } from './utils/constants';
 
-interface ExtraParams {
-  networkId: string;
-  pageSize: number;
-}
-
 /**
  * This function builds a Fastify instance connecting the services with the
  * corresponding fastify route handlers.

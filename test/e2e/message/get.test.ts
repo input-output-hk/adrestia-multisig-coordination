@@ -22,7 +22,7 @@ describe('GET /message/{channelId} [get messages from channel]', () => {
 
   beforeAll(async () => {
     database = await setupDatabase(false);
-    server = setupServer(database);
+    server = setupServer();
     const environment = parseEnvironment();
     enableSync = environment.ENABLE_SYNC;
     await sendMessageToChannel(server, defaultMessage);

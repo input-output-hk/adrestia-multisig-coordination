@@ -1,4 +1,4 @@
-import * as http from 'http';
+import http from 'http';
 import { Repositories } from '../db/repositories';
 import messageService, { MessageService } from './message-service';
 import notificationService, { NotificationService } from './notification-service';

@@ -1,6 +1,6 @@
 /* eslint-disable no-magic-numbers */
 /* eslint-disable unicorn/consistent-function-scoping */
-import * as http from 'http';
+import http from 'http';
 import moment from 'moment';
 import { Sequelize } from 'sequelize/types';
 import databaseCleaner_, { DBCleaner } from '../../../src/server/db/cleaner';
@@ -19,7 +19,7 @@ describe('DB cleaning mechanism', () => {
     pruningTime = environment.PRUNING_TIME;
     enableSync = environment.ENABLE_SYNC;
     database = await setupDatabase(false);
-    setupServices(environment, database)(new http.Server());
+    setupServices()(new http.Server());
     databaseCleaner = databaseCleaner_(environment);
   });
 
