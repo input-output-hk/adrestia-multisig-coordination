@@ -9,7 +9,7 @@
     "test:coverage": "jest --runInBand --coverage",
     "generate-types": "dtsgen --out ./src/types/mcs.d.ts ./src/server/api/openApi.json && prettier --write ./src/types/mcs.d.ts",
     "dev": "ts-node-dev --respawn --transpileOnly -r dotenv/config --watch ./src ./src/server/index.ts",
-    "lint": "eslint \"./test/**/*.ts\" \"./src/**/*.ts\"",
+    "lint": "eslint --max-warnings=0 \"./test/**/*.ts\" \"./src/**/*.ts\"",
     "services:up": "docker-compose up --build",
     "services:down": "docker-compose down",
     "prune-db": "ts-node --transpile-only -r dotenv/config ./src/server/db/prune.ts",
