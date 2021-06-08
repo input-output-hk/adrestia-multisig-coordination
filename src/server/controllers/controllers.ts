@@ -4,7 +4,8 @@ import messageController, { MessageController } from './message-controller';
 /**
  * Configures all the controllers required by the app
  *
- * @param services App services
+ * @param {Services} services App services
+ * @returns {MessageController} Message controller already configured
  */
 export const configure = (services: Services): MessageController => ({
   ...messageController(services.messageService)

@@ -5,7 +5,8 @@ import { Environment } from '../utils/environment-parser';
 /**
  * Creates a database pool to be used to run queries. No connection will be established.
  *
- * @param connectionString `postgresql://dbuser:secretpassword@database.server.com:3211/mydb`
+ * @param {string} connectionString `postgresql://dbuser:secretpassword@database.server.com:3211/mydb`
+ * @returns {Sequelize} new sequelize connection
  */
 const createPool = (connectionString: string): Sequelize => new Sequelize(connectionString);
 
