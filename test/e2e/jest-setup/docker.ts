@@ -2,10 +2,8 @@
 /* eslint-disable no-console */
 import Docker from 'dockerode';
 import { containerExec, imageExists, pullImageAsync } from 'dockerode-utils';
-import path from 'path';
 
 const CONTAINER_IMAGE = 'postgres:11.5-alpine';
-const CONTAINER_TEMP_DIR = '/tmp';
 const CONTAINER_NAME = 'mcs-test';
 
 export const removePostgresContainer = async (): Promise<void> => {
@@ -46,18 +44,10 @@ export const setupPostgresContainer = async (
 
   // Uncomment the following lines if you are going to populate the db with a snapshot
 
-  // await container.putArchive(path.join(__dirname, 'db-snapshot.tar'), {
-  //  path: CONTAINER_TEMP_DIR,
-  //  User: 'root'
-  // });
-  //
   // Wait for the db service to be running (container started event is not enough)
   await containerExec(container, [
     'bash',
     '-c',
     `until psql -U ${user} -d ${database} -c "select 1" > /dev/null 2>&1 ; do sleep 1; done`
   ]);
-  //
-  //  // Execute backup restore
-  //  await containerExec(container, ['bash', '-c', `cat ${CONTAINER_TEMP_DIR}/db.bak | psql -U ${user} ${database}`]);
 };
