@@ -1,0 +1,8 @@
+# GitHub Linguist annotations
+# - influences how files are shown in the GitHub diff view
+
+# Hide niv boilerplate
+nix/sources.nix linguist-generated=true
+
+# Mark the yarn offline packages cache as being binary files
+/packages-cache/ -diff

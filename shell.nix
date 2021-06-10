@@ -1,64 +1,47 @@
-# This file is used by nix-shell.
-# It just takes the shell attribute from default.nix.
-{ config ? {}
-, sourcesOverride ? {}
-, pkgs ? import ./nix/pkgs.nix {}
-, sources ? import ./nix/sources.nix
-, iohkNix ? import sources.iohk-nix {}
-, yarn2nix ? pkgs.yarn2nix-moretea.yarn2nix
-}:
+# This file is used by nix-shell to provide a dev environment.
+{ pkgs ? import ./nix/pkgs.nix {} }:
 
 with pkgs;
+
 let
-  # FIXME: make a Typescript shell
-  # This provides a development environment that can be used with nix-shell
-  shell = pkgs.mkShell {
-    name = "yarn-dev-shell";
+  bannerScript = writeShellScriptBin "banner" ''
+    echo "TS Dev - Nix" \
+      | ${figlet}/bin/figlet -f small -l \
+      | ${lolcat}/bin/lolcat
+  '';
+
+  helpScript = writeShellScriptBin "shell-help" ''
+    echo "Commands:
+      * yarn install         - install dependencies locally
+      * npx tsc              - run typescript compiler
+      * niv update <package> - update nix dependencies
+      * shell-help           - show this message
+    "
+  '';
+
+  shell = packages.multisig-coordination-server.overrideAttrs (old: {
+    name = "${old.pname}-shell";
+    src = null;
 
     # These programs will be available inside the nix-shell.
-    buildInputs = [
+    buildInputs = old.buildInputs ++ [
       yarn2nix    # Generate nix expressions from a yarn.lock file
       nix         # Purely Functional Package Manager
       iohkNix.niv # Dependency management for Nix projects
-      nodejs      # Event-driven I/O framework for the V8 JavaScript engine
       pkgconfig   # Allows packages to find out information about other packages
       tmux        # Terminal multiplexer
-      nodePackages.typescript
       git         # Distributed version control system
-      yarn        # Dependency management for javascript
+      bannerScript # Bling
+      helpScript   # Info
     ];
 
     shellHook = ''
-      echo "Typescript Dev Tools" \
-      | ${figlet}/bin/figlet -f banner -c \
-      | ${lolcat}/bin/lolcat
-
-      echo "NOTE: you may need to export GITHUB_TOKEN if you hit rate limits with niv"
-      echo "Commands:
-        * niv update <package> - update package
-
-      "
+      if [ -n "$PS1" ]; then
+        banner
+        shell-help
+      fi
     '';
-  };
-
-  devops = pkgs.stdenv.mkDerivation {
-    name = "devops-shell";
-    buildInputs = [
-      iohkNix.niv   # Dependency management for Nix projects
-    ];
-    shellHook = ''
-      echo "DevOps Tools" \
-      | ${figlet}/bin/figlet -f banner -c \
-      | ${lolcat}/bin/lolcat
-
-      echo "NOTE: you may need to export GITHUB_TOKEN if you hit rate limits with niv"
-      echo "Commands:
-        * niv update <package> - update package
-
-      "
-    '';
-  };
+  });
 
 in
-
-  shell // { inherit devops; }
+  shell

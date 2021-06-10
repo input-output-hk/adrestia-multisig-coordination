@@ -1,4 +1,5 @@
-{
-}:
+{ pkgs ? import ./nix/pkgs.nix {} }:
 
-let pkgs = import ./nix/pkgs.nix {}; in pkgs.packages
+{
+  inherit (pkgs.packages) multisig-coordination-server;
+}
