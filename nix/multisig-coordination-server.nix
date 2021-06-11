@@ -17,6 +17,9 @@ let
     buildInputs = [ yarn nodejs ];
     src = ( ./.. + srcDir);
     buildCommand = ''
+      echo "node version: $(node --version)"
+      echo "yarn version: $(yarn --version)"
+      echo "yarn interpreter: $(head -n1 `type -p yarn`)"
       mkdir -p $out
       cp -r $src/. $out/
       cd $out
@@ -25,7 +28,8 @@ let
     '';
   };
 
-in stdenv.mkDerivation {
+in stdenv.mkDerivation rec {
+  name = "${pname}-${version}";
   pname = packageJSON.name;
   version = packageJSON.version;
   inherit src;
@@ -49,4 +53,5 @@ in stdenv.mkDerivation {
     EOF
     chmod +x $out/bin/${packageJSON.name}
   '';
+  passthru = { inherit nodejs yarn src; };
 }
