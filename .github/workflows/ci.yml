@@ -29,3 +29,9 @@ jobs:
           PRUNING_TIME: 2
           ENABLE_SYNC: true
           MESSAGE_SIZE: 128
+      - name: Setup nix 
+        uses: nixbuild/nix-quick-install-action@v5
+      - name: Run nix build
+        working-directory: ./multisig-coordination-server
+        run:
+          nix build
