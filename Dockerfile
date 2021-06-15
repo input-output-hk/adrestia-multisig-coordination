@@ -1,4 +1,16 @@
-FROM docker.atixlabs.com/node:14.5.0-alpine as nodejs-builder
+ARG UBUNTU_VERSION=20.04
+
+FROM ubuntu:${UBUNTU_VERSION} as ubuntu-nodejs
+ARG NODEJS_MAJOR_VERSION=14
+ENV DEBIAN_FRONTEND=nonintercative
+RUN apt-get update && apt-get install curl -y &&\
+  curl --proto '=https' --tlsv1.2 -sSf -L https://deb.nodesource.com/setup_${NODEJS_MAJOR_VERSION}.x | bash - &&\
+  apt-get install nodejs -y
+
+FROM ubuntu-nodejs as nodejs-builder
+RUN curl --proto '=https' --tlsv1.2 -sSf -L https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - &&\
+  echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list &&\
+  apt-get update && apt-get install gcc g++ make gnupg2 yarn -y
 
 # Copy deps
 FROM nodejs-builder as mcs-base
