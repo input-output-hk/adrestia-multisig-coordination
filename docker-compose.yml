@@ -24,7 +24,10 @@ services:
         max-size: '200k'
         max-file: '10'
   multisig-coordination-server:
-    image: node:14.5.0-alpine
+    build:
+      context: .
+      target: mcs
+    image: inputoutput/multisig-coordination-server
     environment:
       - DB_CONNECTION_STRING=postgresql://postgres:notForProduction!@postgres:5432/cexplorer
       - LOGGER_LEVEL=debug
@@ -34,7 +37,6 @@ services:
       - CRON_EXPRESSION="0 0 * * *"
       - MESSAGE_SIZE=128
       - PRUNING_TIME=2
-    command: bash -c "yarn --offline && yarn dev"
     expose:
       - 8080
     ports:
@@ -45,8 +47,6 @@ services:
         max-size: '200k'
         max-file: '10'
     working_dir: /home/node/app
-    volumes:
-      - ./:/home/node/app
 secrets:
   postgres_db:
     file: ./config/secrets/postgres_db
